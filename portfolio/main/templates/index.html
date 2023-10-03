@@ -64,8 +64,8 @@
                 <ul>
                     <li><a class="nav-link scrollto active" href="#hero">Home</a></li>
                     <li><a class="nav-link scrollto" href="#about">About</a></li>
-                    <li><a class="nav-link scrollto" href="#resume">Resume</a></li>
-                    <li><a class="nav-link scrollto" href="#services">Services</a></li>
+                    <li><a class="nav-link scrollto" href="#resume">Stacks</a></li>
+                    <li><a class="nav-link scrollto" href="#services">Project</a></li>
                     <li><a class="nav-link scrollto" href="#portfolio">Portfolio</a></li>
                     <li class="dropdown"><a href="#"><span>Drop Down</span> <i class="bi bi-chevron-down"></i></a>
                         <ul>
@@ -140,7 +140,7 @@
             <div class="container">
 
                 <div class="section-title">
-                    <h2>Skills</h2>
+                    <h2>기술 스택</h2>
                 </div>
 
                 <div class="row skills-content">
@@ -156,9 +156,9 @@
                         </div>
 
                         <div class="progress">
-                            <span class="skill">Pytorch <i class="val">75%</i></span>
+                            <span class="skill">Pytorch <i class="val">80%</i></span>
                             <div class="progress-bar-wrap">
-                                <div class="progress-bar" role="progressbar" aria-valuenow="75" aria-valuemin="0"
+                                <div class="progress-bar" role="progressbar" aria-valuenow="80" aria-valuemin="0"
                                     aria-valuemax="100"></div>
                             </div>
                         </div>
@@ -209,29 +209,87 @@
         <!-- ======= Resume Section ======= -->
         <section id="resume" class="resume section-bg">
             <div class="container">
-
                 <div class="section-title">
-                    <h2>Resume</h2>
+                    <h2>이력</h2>
                 </div>
-
                 <div class="row">
                     <div class="col-lg-6">
-                        <h3 class="resume-title">학력</h3>
+                        <h3 class="resume-title">경력</h3>
                         <div class="resume-item pb-0">
-                            <h4>서대전고등학교 졸업</h4>
-                            <h5>2014.03 - 2017.02</h5>
-                            <br></br>
-                            <h4>한남대학교 졸업</h4>
-                            <h5>2017.03 - 2023.02</h5>
-                            <p><em>산업경영공학과 3.93 / 4.5</em></p>
+                            <h4>(주)몰팩바이오</h4>
+                            <h5>2023.08 - </h5>
+                            <p><em>AI 개발부</em></p>
                             <p>
                             <ul>
-                                <li>데이터 사이언스</li>
-                                <li>머신러닝 기초</li>
+                                <li>의료용 WSI(Whole-Size-Image)를 이용한 뇌종양의 4가지 분류 판별</li>
+                                <ul>
+                                    <li>사용 기술 : Python, Machine Learning, Deep Learning, Transfer Learning, Fine-tuning,
+                                        timm, Segmentation</li>
+                                    <li>역할 : 인공지능 모델 개발, Hyper-parameter 조정, 논문 Review & 모델 개선, Segmentation,아이디어 제공
+                                    </li>
+                                    <li>내용 :</li>
+                                    <ul>
+                                        <li>1) microvascular, mitosis, necrosis, tumor 탐지 및 전체 비율 중 해당 면적 계산</li>
+                                        <li>2) Multiclass Classification에 맞는 Model 설계 및 Parameter 설정</li>
+                                    </ul>
+                                </ul>
+                                <li>의료용 WSI(Whole-Size-Image)를 이용한 Mitosis 판별</li>
+                                <ul>
+                                    <li>사용 기술 : Python, Machine Learning, Deep Learning, Transfer Learning, Fine-tuning,
+                                        timm</li>
+                                    <li>역할 : 인공지능 모델 개발, GMP 문서 작성, Hyper-parameter 조정, 논문 Review & 모델 개선,
+                                        Classification, 아이디어 제공 </li>
+                                    <li>내용 :</li>
+                                    <ul>
+                                        <li>1) timm 라이브러리를 이용하여 WSI 이미지 (의료 도메인)과 어울리는 모델 탐색, binary classification에 사용할
+                                            Learning Rate Scheduler 선정 및 수정 후 모델에 맞게 설계</li>
+                                        <li>2) Hyper-parameter Tuning, Transfer-Learning, Fine-tuning 진행</li>
+                                        <li>3) 450,000 X 450,000이 넘어가는 이미지 patch화 진행</li>
+                                        <li>4) 보조진단 의료기기 관련 GMP 문서 작성</li>
+                                        <li>5) 최신 논문 Review 후 모델 개선</li>
+                                        <li>6) 의료용 도메인에 맞는 학습 방법 설계</li>
+                                    </ul>
+                                </ul>
                             </ul>
                             </p>
                         </div>
                     </div>
+                    <div class="col-lg-6">
+                        <h3 class="resume-title">경력</h3>
+                        <div class="resume-item pb-0">
+                            <h4>(주)테라리더</h4>
+                            <h5>2021.03 - 2021.12</h5>
+                            <p><em>SW 개발부</em></p>
+                            <p>
+                            <ul>
+                                <li>Syringe Pump</li>
+                                <ul>
+                                    <li>사용 기술 : Python, Arduino, PyQt, Pyserial, Linux</li>
+                                    <li>역할 : Syringe Pump SW 개발, GUI 구성</li>
+                                    <li>내용 :</li>
+                                    <ul>
+                                        <li>1) Python GUI 라이브러리인 PyQt를 이용하여 사용자 인터페이스 구성</li>
+                                        <li>2) Arduino와의 시리얼 통신을 통해 Stepper Motor 구동</li>
+                                        <li>3) 라즈베리파이를 이용하여 모듈화 진행</li>
+                                    </ul>
+                                </ul>
+                                <li>Spin Coater</li>
+                                <ul>
+                                    <li>사용 기술 : Python, Arduino, PyQt, Pyserial, Linux</li>
+                                    <li>역할 : Spin Coater SW 개발, GUI 구성</li>
+                                    <li>내용 :</li>
+                                    <ul>
+                                        <li>1) Python GUI 라이브러리인 PyQt를 이용하여 사용자 인터페이스 구성</li>
+                                        <li>2) Arduino와의 시리얼 통신을 통해 Stepper Motor 구동</li>
+                                        <li>3) 라즈베리파이를 이용하여 모듈화 진행</li>
+                                    </ul>
+                                </ul>
+                            </ul>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                     <div class="col-lg-6">
                         <h3 class="resume-title">교육 및 활동</h3>
                         <div class="resume-item">
@@ -247,10 +305,24 @@
                             <p> 'AI기반 CNC 밀링 머신의 실시간 이상 소음 감지' 프로젝트를 진행</p>
                         </div>
                     </div>
+                    <div class="col-lg-6">
+                        <h3 class="resume-title">학력</h3>
+                        <div class="resume-item pb-0">
+                            <h4>한남대학교 졸업</h4>
+                            <h5>2017.03 - 2023.02</h5>
+                            <p><em>산업경영공학과 3.93 / 4.5</em></p>
+                            <p>
+                            <ul>
+                                <li>데이터 사이언스</li>
+                                <li>머신러닝 기초</li>
+                            </ul>
+                            </p>
+                            <h4>서대전고등학교 졸업</h4>
+                            <h5>2014.03 - 2017.02</h5>
+                        </div>
+                    </div>
 
                 </div>
-
-            </div>
         </section><!-- End Resume Section -->
 
         <!-- ======= Services Section ======= -->
