@@ -481,6 +481,7 @@ section {
 }
 
 .about .content h3 {
+  margin-left: 10px;
   font-weight: 500;
   font-size: 34px;
   color: #000000;
@@ -1182,6 +1183,10 @@ section {
   gap: 10px;
 }
 
-.flex-container i {
-  color: #6200EE;
+.material-icons-outlined {
+  padding-left: 10px;
 }
+
+/* .flex-container i {
+  color: #6200EE;
+} */
