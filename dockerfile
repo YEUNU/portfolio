@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 소스 코드 복사(로컬에서 Docker 컨테이너 내부로)
 COPY portfolio .
 # gunicorn을 사용하여 Django 애플리케이션 실행 명령
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8993"]
