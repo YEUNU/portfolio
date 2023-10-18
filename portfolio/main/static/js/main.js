@@ -266,3 +266,49 @@
   new PureCounter();
 
 })()
+
+var modal = document.getElementById("myModal");
+
+// Get the image and insert it inside the modal - use its "alt" text as a caption
+var imgs = document.getElementsByClassName("award_image");
+var modalImg = document.getElementById("img01");
+
+for (let img of imgs) {
+  img.onclick = function(){
+      modal.style.display = "block";
+      modalImg.src = this.src;
+
+      // Remove any existing orientation classes
+      modalImg.classList.remove("portrait");
+      modalImg.classList.remove("landscape");
+
+      // Create a new Image object and set its src to the same source as the clicked image
+      var newImage = new Image();
+      newImage.src = this.src;
+
+      // When the image has loaded, compare its width and height and add the appropriate class
+      newImage.onload = function() {
+          if (newImage.width > newImage.height) {
+              // The image is landscape
+              modalImg.classList.add("landscape");
+          } else {
+              // The image is portrait
+              modalImg.classList.add("portrait");
+          }
+      }
+  }
+}
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// When the user clicks on <span> (x), close the modal
+span.onclick= function(){
+    modal.style.display= "none";
+}
+
+window.onclick= function(event){
+    if(event.target == modal){
+        modal.style.display ="none";
+    }
+}
