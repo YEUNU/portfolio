@@ -669,7 +669,7 @@ section {
   border-radius: 8px;
   text-align: center;
   z-index: 1;
-  opacity: 0;
+  opacity: 1;
 }
 
 .services .icon-box img {
