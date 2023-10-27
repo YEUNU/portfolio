@@ -288,3 +288,37 @@ window.onclick = function(event) {
     modal.style.display = "none";
   }
 }
+
+
+const imageWrappers = document.querySelectorAll('.image-wrapper');
+const iconBoxContainer = document.querySelector('#icon-box-container');
+
+const options = {
+  root: null,
+  rootMargin: '0px',
+  threshold: 0.5
+};
+
+const imageObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.style.animation = 'slide-in 1s forwards'; // 해당 요소에 대해 애니메이션 실행
+      imageObserver.unobserve(entry.target); // 한 번 실행된 후 더 이상 감시하지 않음
+    }
+  });
+}, options);
+
+const iconBoxObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('animation-triggered'); // 애니메이션 클래스 추가
+      iconBoxObserver.unobserve(entry.target); // 한 번 실행된 후 더 이상 감시하지 않음
+    }
+  });
+}, options);
+
+imageWrappers.forEach(wrapper => {
+  imageObserver.observe(wrapper);
+});
+
+iconBoxObserver.observe(iconBoxContainer);

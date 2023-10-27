@@ -669,6 +669,7 @@ section {
   border-radius: 8px;
   text-align: center;
   z-index: 1;
+  opacity: 0;
 }
 
 .services .icon-box img {
@@ -746,6 +747,20 @@ section {
 @media (max-width: 768px) {
   .services .icon-box::before {
     bottom: 60%;
+  }
+}
+
+.icon-box.animation-triggered {
+  animation: opacity 2s forwards; /* opacity 애니메이션 적용 */
+}
+
+
+@keyframes opacity {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
   }
 }
 
@@ -1047,18 +1062,36 @@ i {
 }
 
 .image-container {
+  padding-top: 100px;
   display: flex;
+  overflow: hidden;
+  width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-top: 60px;
 }
 
 .image-wrapper {
   flex: 0 0 auto;
-  padding-right: 10px;
+  opacity: 0; /* 초기에는 숨겨진 상태로 설정 */
 }
 
 .image-wrapper img {
   width: 100%;
   height: auto;
+  padding-right: 20px;
+}
+
+.image-wrapper p {
+  text-align: center;
+}
+
+
+@keyframes slide-in {
+  0% {
+    transform: translateX(120%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(10%);
+    opacity: 1;
+  }
 }
