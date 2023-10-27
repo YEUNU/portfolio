@@ -671,6 +671,14 @@ section {
   z-index: 1;
 }
 
+.services .icon-box img {
+  max-width: 100%;
+  max-height: 200px;
+  width: auto;
+  height: auto;
+}
+
+
 .services .icon-box::before {
   content: "";
   position: absolute;
