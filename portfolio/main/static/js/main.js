@@ -312,3 +312,30 @@ window.onclick= function(event){
         modal.style.display ="none";
     }
 }
+
+let imageWrapper = document.getElementById('imageWrapper');
+let isDragging = false;
+let startPosition = 0;
+let currentTranslate = 0;
+
+imageWrapper.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    startPosition = e.clientX - imageWrapper.offsetLeft;
+    currentTranslate = imageWrapper.scrollLeft;
+});
+
+imageWrapper.addEventListener('mouseleave', () => {
+    isDragging = false;
+});
+
+imageWrapper.addEventListener('mouseup', () => {
+    isDragging = false;
+});
+
+imageWrapper.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    e.preventDefault();
+    const currentPosition = e.clientX - imageWrapper.offsetLeft;
+    const slide = currentPosition - startPosition;
+    imageWrapper.scrollLeft = currentTranslate - slide;
+});

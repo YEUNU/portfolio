@@ -1046,22 +1046,17 @@ i {
 
 .image-container {
   display: flex;
-  /* overflow-x: scroll;
-  padding-top: 20px;
-  white-space: nowrap; */
-  /* -webkit-overflow-scrolling: touch;  */
-  /* -webkit-overflow-scrolling: none; */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding-top: 60px;
 }
-
-/* .image-container::-webkit-scrollbar {
-  display: none;
-} */
 
 .image-wrapper {
-  display: inline-block;
-  margin-right: 10px;
-  text-align: center;
+  flex: 0 0 auto;
+  padding-right: 10px;
 }
+
 .image-wrapper img {
-  cursor: pointer;
+  width: 100%;
+  height: auto;
 }
