@@ -1012,7 +1012,7 @@ section {
   display: none; 
   position: fixed;
   z-index: 9999;
-  padding-top: 15%; 
+  /* padding-top: 15%;  */
   left: 0;
   top: 0;
   width: 100%; 
@@ -1020,26 +1020,20 @@ section {
   background-color: #00000035;
 }
 
-
-.modal-content.portrait {
-  margin:auto;
-  display:block;
-  width : auto; 
-  max-height: 70%
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* max-width: 80%; */
+  height: auto;
+  max-width: 50%;
+  /* height :50vh; 
+  width: auto; */
 }
 
-.modal-content.landscape {
-  margin:auto;
-  display:block;
-  height :auto; 
-  max-width: 70%
-}
 .close {
-    color:#aaa;
-    float:right;
-    font-size :28px;
-    font-weight:bold;
-
+    font-size :0px;
 }
 
 .icon-padding {
