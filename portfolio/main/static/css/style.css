@@ -991,6 +991,7 @@ section {
   display: flex;
   align-items: center;
   gap: 10px;
+  -webkit-overflow-scrolling: touch; 
 }
 
 .award_image {
@@ -1041,4 +1042,26 @@ a {
 }
 i {
   font-size: 24px;
+}
+
+.image-container {
+  display: flex;
+  /* overflow-x: scroll;
+  padding-top: 20px;
+  white-space: nowrap; */
+  /* -webkit-overflow-scrolling: touch;  */
+  /* -webkit-overflow-scrolling: none; */
+}
+
+/* .image-container::-webkit-scrollbar {
+  display: none;
+} */
+
+.image-wrapper {
+  display: inline-block;
+  margin-right: 10px;
+  text-align: center;
+}
+.image-wrapper img {
+  cursor: pointer;
 }
