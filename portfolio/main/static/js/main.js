@@ -268,74 +268,23 @@
 })()
 
 var modal = document.getElementById("myModal");
-
-// Get the image and insert it inside the modal - use its "alt" text as a caption
 var imgs = document.getElementsByClassName("award_image");
 var modalImg = document.getElementById("img01");
+var span = document.getElementsByClassName("close")[0];
 
 for (let img of imgs) {
   img.onclick = function(){
-      modal.style.display = "block";
-      modalImg.src = this.src;
-
-      // Remove any existing orientation classes
-      modalImg.classList.remove("portrait");
-      modalImg.classList.remove("landscape");
-
-      // Create a new Image object and set its src to the same source as the clicked image
-      var newImage = new Image();
-      newImage.src = this.src;
-
-      // When the image has loaded, compare its width and height and add the appropriate class
-      newImage.onload = function() {
-          if (newImage.width > newImage.height) {
-              // The image is landscape
-              modalImg.classList.add("landscape");
-          } else {
-              // The image is portrait
-              modalImg.classList.add("portrait");
-          }
-      }
+    modal.style.display = "block";
+    modalImg.src = this.src;
   }
 }
 
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks on <span> (x), close the modal
-span.onclick= function(){
-    modal.style.display= "none";
+span.onclick = function() {
+  modal.style.display = "none";
 }
 
-window.onclick= function(event){
-    if(event.target == modal){
-        modal.style.display ="none";
-    }
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
 }
-
-let imageWrapper = document.getElementById('imageWrapper');
-let isDragging = false;
-let startPosition = 0;
-let currentTranslate = 0;
-
-imageWrapper.addEventListener('mousedown', (e) => {
-    isDragging = true;
-    startPosition = e.clientX - imageWrapper.offsetLeft;
-    currentTranslate = imageWrapper.scrollLeft;
-});
-
-imageWrapper.addEventListener('mouseleave', () => {
-    isDragging = false;
-});
-
-imageWrapper.addEventListener('mouseup', () => {
-    isDragging = false;
-});
-
-imageWrapper.addEventListener('mousemove', (e) => {
-    if (!isDragging) return;
-    e.preventDefault();
-    const currentPosition = e.clientX - imageWrapper.offsetLeft;
-    const slide = currentPosition - startPosition;
-    imageWrapper.scrollLeft = currentTranslate - slide;
-});
