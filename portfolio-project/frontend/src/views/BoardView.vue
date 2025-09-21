@@ -1,105 +1,77 @@
 <template>
-  <div class="board-container">
-    <!-- 왼쪽 사이드바: 태그 필터 -->
-    <aside class="sidebar">
-      <h2 class="sidebar-title">Categories</h2>
-      <ul class="tag-list">
-        <li
-          @click="filterByTag(null)"
-          :class="{ active: !selectedTag }"
-          class="tag-item"
-        >
-          All Posts
-        </li>
-        <li
-          v-for="tag in allTags"
-          :key="tag"
-          @click="filterByTag(tag)"
-          :class="{ active: selectedTag === tag }"
-          class="tag-item"
-        >
-          {{ tag }}
-        </li>
-      </ul>
-    </aside>
-
-    <!-- 메인 콘텐츠: 게시글 갤러리 -->
-    <main class="main-content">
-      <h1 class="page-title">Portfolio</h1>
-      <div v-if="loading" class="loading-spinner"></div>
-      <div v-if="error" class="error-message">{{ error }}</div>
-      <div v-if="!loading && !error" class="posts-grid">
-        <!-- ✅ 수정: 게시물 카드를 클릭하면 상세 페이지로 이동 -->
-        <div v-for="post in posts" :key="post.id" class="post-card" @click="viewPost(post.id)">
-          <!-- ✅ 수정: 게시물 내용에서 첫 이미지를 찾아 썸네일로 설정 -->
-          <div
-            class="post-thumbnail"
-            :style="getFirstImage(post.content) ? { backgroundImage: `url(${getFirstImage(post.content)})` } : {}"
-          ></div>
-          <div class="post-info">
-            <h2 class="post-title">{{ post.title }}</h2>
-            <p class="post-tags">{{ post.tags }}</p>
-            <div v-if="authStore.isAdmin" class="admin-actions">
-              <!-- ✅ 수정: .stop 수식어를 추가하여 이벤트 버블링 방지 -->
-              <button @click.stop="editPost(post.id)" class="btn-edit">수정</button>
-              <button @click.stop="deletePost(post.id)" class="btn-delete">삭제</button>
-            </div>
+  <div class="board-view">
+    <!-- ✅ 수정: 페이지 타이틀을 동적으로 표시하도록 변경 -->
+    <h1 class="page-title">{{ pageTitle }}</h1>
+    <div v-if="loading" class="loading-spinner"></div>
+    <div v-if="error" class="error-message">{{ error }}</div>
+    <div v-if="!loading && !error" class="posts-grid">
+      <div v-for="post in posts" :key="post.id" class="post-card" @click="viewPost(post.id)">
+        <div
+          class="post-thumbnail"
+          :style="getFirstImage(post.content) ? { backgroundImage: `url(${getFirstImage(post.content)})` } : {}"
+        ></div>
+        <div class="post-info">
+          <h2 class="post-title">{{ post.title }}</h2>
+          <p class="post-tags">{{ post.tags }}</p>
+          <div v-if="authStore.isAdmin" class="admin-actions">
+            <button @click.stop="editPost(post.id)" class="btn-edit">수정</button>
+            <button @click.stop="deletePost(post.id)" class="btn-delete">삭제</button>
           </div>
         </div>
       </div>
-    </main>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
+// ✅ watch와 computed를 import하여 동적 데이터 처리를 강화합니다.
+import { ref, onMounted, watch, computed } from 'vue'; 
+// ✅ useRoute를 import하여 URL의 변화를 감지합니다.
+import { useRouter, useRoute } from 'vue-router'; 
 import api from '@/services/api';
 import { useAuthStore } from '@/store/auth';
 
 const posts = ref([]);
-const allTags = ref([]);
-const selectedTag = ref(null);
 const loading = ref(true);
 const error = ref(null);
 const router = useRouter();
+const route = useRoute(); // ✅ route 객체를 가져와 현재 URL 정보에 접근합니다.
 const authStore = useAuthStore();
 
-// ✅ 추가: Markdown 내용에서 첫 번째 이미지 URL을 추출하는 함수
+// ✅ 추가: URL 쿼리에 따라 페이지 타이틀을 동적으로 계산합니다.
+const pageTitle = computed(() => {
+  return route.query.tag ? `# ${route.query.tag}` : 'All Posts';
+});
+
 const getFirstImage = (content) => {
   if (!content) return null;
-  // 정규표현식을 사용하여 마크다운 이미지 URL을 찾습니다.
   const regex = /!\[.*?\]\((.*?)\)/;
   const match = content.match(regex);
   if (match && match[1]) {
     const imageUrl = match[1];
-    // 상대 경로인 경우, 전체 URL을 구성합니다.
     if (imageUrl.startsWith('/')) {
       return `${api.defaults.baseURL}${imageUrl}`;
     }
-    return imageUrl; // 이미 전체 URL인 경우
+    return imageUrl;
   }
-  return null; // 이미지가 없는 경우
+  return null;
 };
 
-const fetchAllTags = async () => {
-  try {
-    const response = await api.get('/api/v1/board/tags');
-    allTags.value = response.data;
-  } catch (err) {
-    console.error('Failed to fetch tags:', err);
-  }
-};
-
+// ✅ 수정: fetchPosts 함수가 App.vue로부터 전달된 URL 쿼리(?tag=...)를 사용하도록 변경합니다.
 const fetchPosts = async () => {
   try {
     loading.value = true;
     let url = '/api/v1/board/';
-    if (selectedTag.value) {
-      url += `?tags=${selectedTag.value}`;
+    if (route.query.tag) {
+      url += `?tags=${route.query.tag}`;
     }
     const response = await api.get(url);
-    posts.value = response.data;
+    const fetchedPosts = response.data;
+    
+    // ✅ 추가: 게시글을 생성 시간(created_at) 기준으로 내림차순 정렬 (최신순)
+    fetchedPosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    posts.value = fetchedPosts;
     error.value = null;
   } catch (err) {
     error.value = '게시글을 불러오는 데 실패했습니다.';
@@ -108,17 +80,11 @@ const fetchPosts = async () => {
   }
 };
 
-const filterByTag = (tag) => {
-  selectedTag.value = tag;
-  fetchPosts();
-};
+// ✅ 추가: URL의 태그 필터가 변경될 때마다 게시물 목록을 새로고침합니다.
+watch(() => route.query.tag, fetchPosts);
 
-onMounted(() => {
-  fetchAllTags();
-  fetchPosts();
-});
+onMounted(fetchPosts);
 
-// ✅ 추가: 게시물 상세 보기 페이지로 이동하는 함수
 const viewPost = (id) => {
   router.push({ name: 'PostDetail', params: { id } });
 };
@@ -132,7 +98,7 @@ const deletePost = async (id) => {
     try {
       await api.delete(`/api/v1/board/${id}`);
       fetchPosts();
-      fetchAllTags();
+      // 태그 목록 갱신은 App.vue에서 처리해야 합니다 (추후 개선).
     } catch (err) {
       alert('게시글 삭제에 실패했습니다.');
     }
@@ -141,34 +107,9 @@ const deletePost = async (id) => {
 </script>
 
 <style scoped>
-.board-container {
-  display: flex;
-  color: #fff;
-}
-.sidebar {
-  width: 250px;
-  padding-right: 30px;
-  border-right: 1px solid #333;
-}
-.sidebar-title {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-}
-.tag-list {
-  list-style: none;
-  padding: 0;
-}
-.tag-item {
-  padding: 10px 0;
-  cursor: pointer;
-  transition: color 0.2s;
-}
-.tag-item:hover, .tag-item.active {
-  color: #3d8bfd;
-}
-.main-content {
-  flex: 1;
-  padding-left: 40px;
+/* ✅ 수정: 불필요한 스타일(sidebar, board-container 등)을 모두 제거하고 정리합니다. */
+.board-view {
+  width: 100%;
 }
 .page-title {
     font-size: 2.5rem;
@@ -196,7 +137,6 @@ const deletePost = async (id) => {
     width: 100%;
     height: 200px;
     background-color: #333;
-    /* --- ✅ 추가: 배경 이미지 스타일 --- */
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -234,6 +174,11 @@ const deletePost = async (id) => {
 .btn-delete {
     background-color: #e53935;
     color: white;
+}
+.loading-spinner, .error-message {
+  text-align: center;
+  margin-top: 50px;
+  font-size: 1.2rem;
 }
 </style>
 
