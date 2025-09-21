@@ -37,7 +37,7 @@
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import marked from '@/utils/markdown'; // ✅ 수정: 중앙 설정된 marked 인스턴스 import
+import marked from '@/utils/markdown';
 import api from '@/services/api';
 
 const router = useRouter();
@@ -112,7 +112,6 @@ const handleSubmit = async () => {
   loading.value = true;
   error.value = null;
   try {
-    // 데이터베이스에는 상대 경로가 저장되도록, 전체 URL을 다시 상대 경로로 변환합니다.
     const contentToSave = post.value.content.replace(new RegExp(api.defaults.baseURL, 'g'), '');
     const payload = { ...post.value, content: contentToSave };
 

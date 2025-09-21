@@ -2,9 +2,11 @@ import axios from 'axios';
 
 // Axios 인스턴스 생성
 const api = axios.create({
-  // 백엔드 API의 기본 URL을 설정합니다.
-  // Docker Compose 환경에서는 Nginx의 포트(8080)를 통해 백엔드(/api)로 프록시됩니다.
-  baseURL: 'http://localhost:8080', 
+  // API 기본 URL을 현재 창의 주소로 동적으로 설정합니다.
+  // 이렇게 하면 localhost, 192.168.x.x 등 어떤 주소로 접속하든
+  // API 요청이 올바르게 전달됩니다.
+  baseURL: window.location.origin, 
 });
 
 export default api;
+
