@@ -40,8 +40,8 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 
-const username = ref('admin');
-const password = ref('password');
+const username = ref('');
+const password = ref('');
 const error = ref(null);
 const loading = ref(false);
 
