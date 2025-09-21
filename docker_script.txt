@@ -1,3 +1,0 @@
-docker build -t portfolio .
-
-docker run -d -p 8993:8993 portfolio

@@ -1,5 +1,0 @@
-Django
-django-bootstrap5
-django-bootstrap5==23.3
-gunicorn
-uvicorn
