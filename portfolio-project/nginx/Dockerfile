@@ -21,9 +21,6 @@ FROM nginx:stable-alpine
 # 빌드 단계에서 생성된 정적 파일들을 Nginx의 기본 서빙 디렉터리로 복사
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# ✅ 수정된 부분: default.conf 파일의 경로를 정확히 지정
-# 커스텀 Nginx 설정을 컨테이너로 복사
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
 
 # 80번 포트 노출
 EXPOSE 80
