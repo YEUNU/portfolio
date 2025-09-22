@@ -108,6 +108,7 @@ const handleFileUpload = async (event) => {
   }
 };
 
+
 const handleSubmit = async () => {
   loading.value = true;
   error.value = null;
@@ -130,17 +131,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.editor-toolbar {
-  margin-bottom: 10px;
-}
-.btn-upload {
-  padding: 6px 12px;
-  background-color: #333;
-  color: #fff;
-  border: 1px solid #555;
-  border-radius: 6px;
-  cursor: pointer;
-}
 .write-view {
   color: #fff;
 }
@@ -171,9 +161,7 @@ input, textarea {
   color: #e0e0e0;
   font-size: 1rem;
 }
-textarea {
-  resize: vertical;
-}
+textarea { resize: vertical; }
 .btn-submit {
   padding: 0.8rem 1.5rem;
   border: none;
@@ -195,11 +183,34 @@ textarea {
   padding: 1rem;
   border-radius: 8px;
   min-height: 400px;
-  line-height: 1.7;
 }
 .error-message {
   color: #e57373;
   margin-top: 1rem;
+}
+.editor-toolbar {
+  margin-bottom: 10px;
+}
+.btn-upload {
+  padding: 6px 12px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+@media (max-width: 1024px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+  .preview-container {
+    border-left: none;
+    border-top: 1px solid #444;
+    padding-left: 0;
+    padding-top: 2rem;
+    margin-top: 2rem;
+  }
 }
 </style>
 

@@ -1,6 +1,5 @@
 <template>
   <div class="board-view">
-    <!-- ✅ 수정: 페이지 타이틀을 동적으로 표시하도록 변경 -->
     <h1 class="page-title">{{ pageTitle }}</h1>
     <div v-if="loading" class="loading-spinner"></div>
     <div v-if="error" class="error-message">{{ error }}</div>
@@ -24,9 +23,7 @@
 </template>
 
 <script setup>
-// ✅ watch와 computed를 import하여 동적 데이터 처리를 강화합니다.
 import { ref, onMounted, watch, computed } from 'vue'; 
-// ✅ useRoute를 import하여 URL의 변화를 감지합니다.
 import { useRouter, useRoute } from 'vue-router'; 
 import api from '@/services/api';
 import { useAuthStore } from '@/store/auth';
@@ -35,10 +32,9 @@ const posts = ref([]);
 const loading = ref(true);
 const error = ref(null);
 const router = useRouter();
-const route = useRoute(); // ✅ route 객체를 가져와 현재 URL 정보에 접근합니다.
+const route = useRoute();
 const authStore = useAuthStore();
 
-// ✅ 추가: URL 쿼리에 따라 페이지 타이틀을 동적으로 계산합니다.
 const pageTitle = computed(() => {
   return route.query.tag ? `# ${route.query.tag}` : 'All Posts';
 });
@@ -57,7 +53,6 @@ const getFirstImage = (content) => {
   return null;
 };
 
-// ✅ 수정: fetchPosts 함수가 App.vue로부터 전달된 URL 쿼리(?tag=...)를 사용하도록 변경합니다.
 const fetchPosts = async () => {
   try {
     loading.value = true;
@@ -68,7 +63,6 @@ const fetchPosts = async () => {
     const response = await api.get(url);
     const fetchedPosts = response.data;
     
-    // ✅ 추가: 게시글을 생성 시간(created_at) 기준으로 내림차순 정렬 (최신순)
     fetchedPosts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     posts.value = fetchedPosts;
@@ -80,7 +74,6 @@ const fetchPosts = async () => {
   }
 };
 
-// ✅ 추가: URL의 태그 필터가 변경될 때마다 게시물 목록을 새로고침합니다.
 watch(() => route.query.tag, fetchPosts);
 
 onMounted(fetchPosts);
@@ -98,7 +91,6 @@ const deletePost = async (id) => {
     try {
       await api.delete(`/api/v1/board/${id}`);
       fetchPosts();
-      // 태그 목록 갱신은 App.vue에서 처리해야 합니다 (추후 개선).
     } catch (err) {
       alert('게시글 삭제에 실패했습니다.');
     }
@@ -107,7 +99,6 @@ const deletePost = async (id) => {
 </script>
 
 <style scoped>
-/* ✅ 수정: 불필요한 스타일(sidebar, board-container 등)을 모두 제거하고 정리합니다. */
 .board-view {
   width: 100%;
 }
@@ -119,7 +110,8 @@ const deletePost = async (id) => {
 }
 .posts-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    /* 모바일에서는 1열, PC에서는 여러 열로 보이도록 변경 */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 30px;
 }
 .post-card {
@@ -179,6 +171,12 @@ const deletePost = async (id) => {
   text-align: center;
   margin-top: 50px;
   font-size: 1.2rem;
+}
+/* 모바일 화면에서 제목 크기 조정 */
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 2rem;
+  }
 }
 </style>
 
