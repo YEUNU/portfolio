@@ -42,6 +42,8 @@ services:
     volumes:
       # 1. Nginx 설정 파일을 컨테이너 내부의 올바른 위치로 연결
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+      # - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/default.conf
+
       # 2. SSL 인증서와 키 파일을 각각의 경로로 연결
       - ./ssl/cloudflare-origin.pem:/etc/ssl/certs/cloudflare-origin.pem
       - ./ssl/cloudflare-origin.key:/etc/ssl/private/cloudflare-origin.key

@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <!-- 모바일 화면에서는 isSidebarOpen 상태에 따라 클래스 동적 부여 -->
+    <!-- 왼쪽 사이드바: 메인 네비게이션 -->
     <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
       <div class="sidebar-header">
         <router-link to="/" class="site-title" @click="closeSidebar">S.Y. Portfolio</router-link>
@@ -148,7 +148,8 @@ onMounted(fetchAllTags);
 
 .main-header {
   display: flex;
-  justify-content: space-between;
+  /* ✅ 수정: 버튼들을 오른쪽으로 정렬합니다. */
+  justify-content: flex-end; 
   align-items: center;
   padding: 30px 50px;
   border-bottom: 1px solid #2a2a2a;
@@ -167,7 +168,6 @@ onMounted(fetchAllTags);
   overflow-y: auto;
 }
 
-/* --- 모바일 반응형 스타일 --- */
 .btn-hamburger, .btn-close-sidebar {
   display: none;
   background: none;
@@ -193,7 +193,9 @@ onMounted(fetchAllTags);
   .btn-hamburger, .btn-close-sidebar {
     display: block;
   }
+  /* ✅ 수정: 모바일에서는 양쪽 정렬을 유지합니다. */
   .main-header {
+    justify-content: space-between;
     padding: 20px;
   }
   .content-area {

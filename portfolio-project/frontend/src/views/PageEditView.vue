@@ -1,17 +1,24 @@
 <template>
-  <div class="page-edit-view">
-    <h1 class="page-title">"{{ pageTitle }}" 페이지 수정</h1>
+  <div class="write-view">
+    <h1 class="page-title">{{ isEditing ? '게시글 수정' : '새 글 작성하기' }}</h1>
     <div class="editor-layout">
-      <!-- 왼쪽: 수정 폼 -->
       <div class="editor-container">
-        <form @submit.prevent="handleSubmit" class="edit-form">
+        <form @submit.prevent="handleSubmit" class="write-form">
           <div class="form-group">
-            <label for="title">페이지 제목</label>
-            <input id="title" type="text" v-model="page.title" required />
+            <label for="title">제목</label>
+            <input id="title" type="text" v-model="post.title" required />
+          </div>
+          <div class="form-group">
+            <label for="tags">해시태그 (쉼표로 구분)</label>
+            <input id="tags" type="text" v-model="post.tags" placeholder="e.g., vue, fastapi, portfolio" />
           </div>
           <div class="form-group">
             <label for="content">내용 (Markdown 지원)</label>
-            <textarea id="content" v-model="page.content" rows="20" required></textarea>
+            <div class="editor-toolbar">
+              <button type="button" @click="triggerFileInput" class="btn-upload">이미지 업로드</button>
+              <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
+            </div>
+            <textarea id="content" ref="contentTextarea" v-model="post.content" rows="15" required></textarea>
           </div>
           <button type="submit" class="btn-submit" :disabled="loading">
             {{ loading ? '저장 중...' : '저장하기' }}
@@ -19,7 +26,6 @@
           <p v-if="error" class="error-message">{{ error }}</p>
         </form>
       </div>
-      <!-- 오른쪽: 실시간 미리보기 -->
       <div class="preview-container">
         <h2 class="preview-title">미리보기</h2>
         <div class="markdown-preview" v-html="compiledMarkdown"></div>
@@ -29,50 +35,94 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
-import { marked } from 'marked';
+import { ref, computed, onMounted, nextTick } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import marked from '@/utils/markdown';
 import api from '@/services/api';
 
-const route = useRoute();
 const router = useRouter();
-
-const page = ref({ title: '', content: '' });
-const pageTitle = ref('');
+const route = useRoute();
+const post = ref({
+  title: '',
+  content: '',
+  tags: '',
+});
 const loading = ref(false);
 const error = ref(null);
+const fileInput = ref(null);
+const contentTextarea = ref(null);
 
-// Markdown 콘텐츠를 실시간으로 HTML로 변환
+const isEditing = computed(() => !!route.params.id);
+
 const compiledMarkdown = computed(() => {
-  return marked(page.value.content || '내용을 입력하면 여기에 미리보기가 표시됩니다.');
+  return marked(post.value.content || '내용을 입력하면 여기에 미리보기가 표시됩니다.');
 });
 
-// 컴포넌트가 마운트될 때 기존 페이지 데이터를 불러옴
 onMounted(async () => {
-  try {
-    const slug = route.params.slug;
-    const response = await api.get(`/api/v1/pages/${slug}`);
-    page.value = response.data;
-    pageTitle.value = response.data.title; // 초기 제목 설정
-  } catch (err) {
-    error.value = '페이지 데이터를 불러오는 데 실패했습니다.';
+  if (isEditing.value) {
+    try {
+      const postId = route.params.id;
+      const response = await api.get(`/api/v1/board/${postId}`);
+      post.value = response.data;
+    } catch (err) {
+      error.value = '게시글을 불러오는 데 실패했습니다.';
+    }
   }
 });
 
-// 수정된 내용을 서버에 저장하는 함수
+const triggerFileInput = () => {
+  fileInput.value.click();
+};
+
+const handleFileUpload = async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const response = await api.post('/api/v1/upload/', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    const relativePath = response.data.file_path;
+    const markdownImage = `\n![${file.name}](${relativePath})\n`;
+
+    const textarea = contentTextarea.value;
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    post.value.content = post.value.content.substring(0, start) + markdownImage + post.value.content.substring(end);
+    
+    await nextTick();
+    textarea.selectionStart = textarea.selectionEnd = start + markdownImage.length;
+    textarea.focus();
+
+  } catch (err) {
+    alert('이미지 업로드에 실패했습니다.');
+    console.error(err);
+  } finally {
+    event.target.value = '';
+  }
+};
+
 const handleSubmit = async () => {
   loading.value = true;
   error.value = null;
   try {
-    const slug = route.params.slug;
-    await api.put(`/api/v1/pages/${slug}`, {
-      title: page.value.title,
-      content: page.value.content,
-    });
-    // 저장 성공 시 해당 페이지 뷰로 이동
-    router.push({ name: 'PageView', params: { slug } });
+    const contentToSave = post.value.content.replace(new RegExp(api.defaults.baseURL, 'g'), '');
+    const payload = { ...post.value, content: contentToSave };
+
+    if (isEditing.value) {
+      await api.put(`/api/v1/board/${route.params.id}`, payload);
+    } else {
+      await api.post('/api/v1/board/', payload);
+    }
+    router.push({ name: 'Board' });
   } catch (err) {
-    error.value = '페이지 저장에 실패했습니다.';
+    error.value = '게시글 저장에 실패했습니다.';
   } finally {
     loading.value = false;
   }
@@ -80,8 +130,7 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-/* WriteView.vue와 유사한 스타일을 사용하여 일관성을 유지합니다. */
-.page-edit-view {
+.write-view {
   color: #fff;
 }
 .page-title {
@@ -110,11 +159,8 @@ input, textarea {
   border-radius: 8px;
   color: #e0e0e0;
   font-size: 1rem;
-  font-family: inherit;
 }
-textarea {
-  resize: vertical;
-}
+textarea { resize: vertical; }
 .btn-submit {
   padding: 0.8rem 1.5rem;
   border: none;
@@ -122,7 +168,6 @@ textarea {
   color: white;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 1rem;
 }
 .preview-container {
   border-left: 1px solid #444;
@@ -137,25 +182,34 @@ textarea {
   padding: 1rem;
   border-radius: 8px;
   min-height: 400px;
-  line-height: 1.7;
 }
 .error-message {
   color: #e57373;
   margin-top: 1rem;
 }
+.editor-toolbar {
+  margin-bottom: 10px;
+}
+.btn-upload {
+  padding: 6px 12px;
+  background-color: #333;
+  color: #fff;
+  border: 1px solid #555;
+  border-radius: 6px;
+  cursor: pointer;
+}
 
-/* Markdown 스타일링 */
-.markdown-preview :deep(h2) {
-  font-size: 1.8rem;
-  border-bottom: 1px solid #444;
-  padding-bottom: 0.5rem;
-  margin-top: 2.5rem;
-  margin-bottom: 1.5rem;
-}
-.markdown-preview :deep(p) {
-  margin-bottom: 1rem;
-}
-.markdown-preview :deep(ul) {
-  padding-left: 20px;
+/* 모바일 화면에서 1열 레이아웃으로 변경 */
+@media (max-width: 1024px) {
+  .editor-layout {
+    grid-template-columns: 1fr;
+  }
+  .preview-container {
+    border-left: none;
+    border-top: 1px solid #444;
+    padding-left: 0;
+    padding-top: 2rem;
+    margin-top: 2rem;
+  }
 }
 </style>

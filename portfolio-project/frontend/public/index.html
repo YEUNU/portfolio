@@ -5,13 +5,40 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>Portfolio Board</title>
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    
+    <style>
+      /* --- ✅ 추가: CSS Reset의 핵심 --- */
+      /* 모든 HTML 요소의 box-sizing 모델을 border-box로 변경합니다.
+         이것이 레이아웃이 화면보다 커지는 문제를 근본적으로 해결합니다. */
+      html {
+        box-sizing: border-box;
+      }
+      *, *:before, *:after {
+        box-sizing: inherit;
+      }
+
+      /* 브라우저마다 기본적으로 가지고 있는 margin, padding을 모두 제거합니다. */
+      html, body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+      }
+
+      /* 웹페이지의 가장 기본이 되는 body 태그에
+        우리 포트폴리오의 다크 테마 배경색을 직접 적용합니다. */
+      body {
+        background-color: #121212;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+    </style>
   </head>
   <body>
     <noscript>
-      <strong>We're sorry but this app doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
     </noscript>
     <div id="app"></div>
     <!-- built files will be auto injected -->
   </body>
 </html>
+

@@ -108,7 +108,6 @@ const handleFileUpload = async (event) => {
   }
 };
 
-
 const handleSubmit = async () => {
   loading.value = true;
   error.value = null;
@@ -200,6 +199,7 @@ textarea { resize: vertical; }
   cursor: pointer;
 }
 
+/* 모바일 화면에서 1열 레이아웃으로 변경 */
 @media (max-width: 1024px) {
   .editor-layout {
     grid-template-columns: 1fr;
