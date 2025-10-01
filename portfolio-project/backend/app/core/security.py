@@ -6,8 +6,14 @@ from passlib.context import CryptContext
 
 from app.core.config import settings
 
-# 비밀번호 해싱을 위한 CryptContext 객체 생성 (bcrypt 알고리즘 사용)
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# --- [수정된 부분 시작] ---
+
+# 1. 새로운 기본 알고리즘으로 argon2를 지정합니다.
+# 2. bcrypt는 기존 비밀번호 검증을 위해 남겨둡니다 (deprecated="auto").
+#    이렇게 하면 passlib이 알아서 기존 bcrypt 해시를 인식하고 검증해줍니다.
+pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
+
+# --- [수정된 부분 끝] ---
 
 ALGORITHM = "HS256"
 
@@ -17,7 +23,6 @@ def create_access_token(
 ) -> str:
     """
     주어진 subject(보통 사용자 ID)를 기반으로 JWT 액세스 토큰을 생성합니다.
-    (이 함수는 수정이 필요 없습니다.)
     """
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -35,16 +40,15 @@ def create_access_token(
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     입력된 일반 비밀번호와 해시된 비밀번호를 비교하여 일치 여부를 반환합니다.
+    (Argon2로 변경하여 더 이상 72바이트 제한이 없으므로 잘라내는 로직을 제거합니다.)
     """
-    # bcrypt의 72바이트 제한에 맞춰 비밀번호를 자릅니다.
-    truncated_password = plain_password.encode('utf-8')[:72]
-    return pwd_context.verify(truncated_password, hashed_password)
+    return pwd_context.verify(plain_password, hashed_password)
 
 
 def get_password_hash(password: str) -> str:
     """
-    일반 비밀번호를 받아 bcrypt 해시 값을 생성하여 반환합니다.
+    일반 비밀번호를 받아 새로운 기본 알고리즘(argon2)의 해시 값을 생성합니다.
+    (Argon2로 변경하여 더 이상 72바이트 제한이 없으므로 잘라내는 로직을 제거합니다.)
     """
-    # bcrypt의 72바이트 제한에 맞춰 비밀번호를 자릅니다.
-    truncated_password = password.encode('utf-8')[:72]
-    return pwd_context.hash(truncated_password)
+    return pwd_context.hash(password)
+
