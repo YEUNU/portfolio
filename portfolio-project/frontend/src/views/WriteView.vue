@@ -1,8 +1,9 @@
 <template>
-  <div class="write-view">
+  <div class="page-container write-view">
     <h1 class="page-title">{{ isEditing ? '게시글 수정' : '새 글 작성하기' }}</h1>
     <form @submit.prevent="handleSubmit">
       <div class="editor-layout">
+        <!-- Editor Section -->
         <div class="editor-container">
           <div class="form-group">
             <label for="title">제목</label>
@@ -42,6 +43,7 @@
           </div>
         </div>
 
+        <!-- Preview Section -->
         <div class="preview-container">
           <h2 class="preview-title">미리보기</h2>
           <div class="markdown-preview" v-html="compiledMarkdown"></div>
@@ -84,18 +86,31 @@ const compiledMarkdown = computed(() => {
 });
 
 onMounted(async () => {
-  if (isEditing.value) {
+  const postId = route.params.id;
+  if (isEditing.value && postId) {
+    loading.value = true;
+    error.value = null;
     try {
-      const postId = route.params.id;
-      const response = await api.get(`/api/v1/board/${postId}`);
-      // tags가 배열이면 문자열로 변환
+      let response;
+      // --- [핵심 수정] ---
+      // postId가 숫자인지 (일반 게시글) 아닌지 (고정 페이지 slug) 확인합니다.
+      if (isNaN(parseInt(postId))) {
+        // postId가 'about', 'contact' 같은 문자열이면 slug API를 호출합니다.
+        response = await api.get(`/api/v1/board/slug/${postId}`);
+      } else {
+        // postId가 숫자이면 기존 ID 기반 API를 호출합니다.
+        response = await api.get(`/api/v1/board/${postId}`);
+      }
+      
       if (Array.isArray(response.data.tags)) {
         response.data.tags = response.data.tags.join(', ');
       }
       post.value = response.data;
     } catch (err) {
+      console.error('Failed to load post for editing:', err);
       error.value = '게시글을 불러오는 데 실패했습니다.';
-      console.error(err);
+    } finally {
+      loading.value = false;
     }
   }
 });
@@ -113,9 +128,7 @@ const handleFileUpload = async (event) => {
 
   try {
     const response = await api.post('/api/v1/upload/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+      headers: { 'Content-Type': 'multipart/form-data' },
     });
 
     const relativePath = response.data.file_path;
@@ -161,11 +174,10 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-.write-view {
+.page-container {
   max-width: 1600px;
   margin: 0 auto;
   padding: var(--spacing-lg);
-  color: var(--color-text);
 }
 .page-title {
   font-size: 2rem;
@@ -253,7 +265,6 @@ textarea {
   background-color: var(--color-surface);
 }
 
-/* Mobile responsive layout */
 @media (max-width: 1024px) {
   .editor-layout {
     grid-template-columns: 1fr;
