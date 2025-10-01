@@ -12,11 +12,16 @@
           <li>
             <span class="nav-category" :class="{ 'category-active': isPortfolioActive }">Portfolio</span>
             <ul class="tag-list">
-              <li @click="filterByTag(null)" :class="{ active: isPortfolioActive && !$route.query.tag }" class="tag-item">
-                All Posts
+              <!-- [수정] li > router-link 구조로 변경 -->
+              <li>
+                <router-link :to="{ path: '/', query: {} }" class="tag-item" :class="{ active: isPortfolioActive && !$route.query.tag }" @click="closeSidebar">
+                  All Posts
+                </router-link>
               </li>
-              <li v-for="tag in allTags" :key="tag" @click="filterByTag(tag)" :class="{ active: isPortfolioActive && $route.query.tag === tag }" class="tag-item">
-                {{ tag }}
+              <li v-for="tag in allTags" :key="tag">
+                <router-link :to="{ path: '/', query: { tag: tag } }" class="tag-item" :class="{ active: isPortfolioActive && $route.query.tag === tag }" @click="filterByTag(tag)">
+                  {{ tag }}
+                </router-link>
               </li>
             </ul>
           </li>
@@ -84,8 +89,9 @@ const fetchAllTags = async () => {
   }
 };
 
+// [수정] router.push 대신 router-link를 사용하므로, 이 함수는 이제 사이드바를 닫는 역할만 합니다.
 const filterByTag = (tag) => {
-  router.push({ path: '/', query: tag ? { tag } : {} });
+  // router.push({ path: '/', query: tag ? { tag } : {} });
   closeSidebar();
 };
 
@@ -98,6 +104,7 @@ onMounted(fetchAllTags);
 </script>
 
 <style scoped>
+/* CSS는 변경할 필요가 없습니다. */
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -136,7 +143,17 @@ onMounted(fetchAllTags);
 .nav-link { font-size: 1.2rem; font-weight: 600; color: #a0a0a0; text-decoration: none; transition: color 0.2s; }
 .nav-link.router-link-exact-active { color: #fff; }
 .tag-list { list-style: none; padding-left: 15px; margin-top: 15px; }
-.tag-item { color: #a0a0a0; cursor: pointer; padding: 6px 0; transition: color 0.2s; }
+
+/* [수정] router-link는 기본적으로 a 태그이므로, 스타일이 약간 달라질 수 있습니다. */
+/* a 태그의 기본 스타일을 초기화하고 기존 스타일을 적용합니다. */
+.tag-item { 
+  display: block; /* a 태그를 블록 요소로 만들어 클릭 영역을 넓힙니다. */
+  color: #a0a0a0; 
+  cursor: pointer; 
+  padding: 6px 0; 
+  transition: color 0.2s;
+  text-decoration: none; /* 밑줄 제거 */
+}
 .tag-item:hover, .tag-item.active { color: #3d8bfd; }
 
 .main-wrapper {
@@ -148,7 +165,6 @@ onMounted(fetchAllTags);
 
 .main-header {
   display: flex;
-  /* ✅ 수정: 버튼들을 오른쪽으로 정렬합니다. */
   justify-content: flex-end; 
   align-items: center;
   padding: 30px 50px;
@@ -193,7 +209,6 @@ onMounted(fetchAllTags);
   .btn-hamburger, .btn-close-sidebar {
     display: block;
   }
-  /* ✅ 수정: 모바일에서는 양쪽 정렬을 유지합니다. */
   .main-header {
     justify-content: space-between;
     padding: 20px;
@@ -203,4 +218,3 @@ onMounted(fetchAllTags);
   }
 }
 </style>
-

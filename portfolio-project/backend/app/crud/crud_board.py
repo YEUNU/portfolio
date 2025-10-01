@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from typing import List
+from typing import List, Optional, Union # ✅ Optional, Union import 추가
 
 from app.crud.base import CRUDBase
 from app.models.board import Board
@@ -52,6 +52,26 @@ class CRUDBoard(CRUDBase[Board, BoardCreate, BoardUpdate]):
         # 최종적으로 set을 리스트로 변환하여 반환합니다.
         return sorted(list(unique_tags))
 
+    # --- [신규 추가] Slug로 게시글을 조회하는 함수 ---
+    def get_by_slug(self, db: Session, *, slug: str) -> Optional[Board]:
+        """
+        Slug를 기준으로 게시글을 조회합니다.
+        Board 모델에 'slug' 컬럼이 있다고 가정합니다.
+        """
+        return db.query(self.model).filter(self.model.slug == slug).first()
+
+    # --- [신규 추가] ID 또는 Slug로 게시글을 조회하는 함수 ---
+    def get_by_id_or_slug(self, db: Session, *, post_id: Union[int, str]) -> Optional[Board]:
+        """
+        ID(숫자) 또는 Slug(문자)를 받아 게시글을 조회합니다.
+        API 엔드포인트에서 받은 파라미터의 타입에 따라 분기 처리합니다.
+        """
+        if isinstance(post_id, int):
+            # post_id가 숫자이면, 기존처럼 id로 조회
+            return db.query(self.model).filter(self.model.id == post_id).first()
+        else:
+            # post_id가 문자열이면, slug로 조회
+            return db.query(self.model).filter(self.model.slug == post_id).first()
+
 
 board = CRUDBoard(Board)
-
