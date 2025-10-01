@@ -1,7 +1,7 @@
-&lt;template>
-  &lt;div class="form-field">
-    &lt;label v-if="label" :for="id" class="form-label">{{ label }}&lt;/label>
-    &lt;textarea
+<template>
+  <div class="form-field">
+    <label v-if="label" :for="id" class="form-label">{{ label }}</label>
+    <textarea
       v-if="type === 'textarea'"
       :id="id"
       :value="modelValue"
@@ -9,8 +9,8 @@
       v-bind="$attrs"
       class="form-input"
       :rows="rows"
-    >&lt;/textarea>
-    &lt;input
+    ></textarea>
+    <input
       v-else
       :id="id"
       :type="type"
@@ -19,10 +19,10 @@
       v-bind="$attrs"
       class="form-input"
     >
-  &lt;/div>
-&lt;/template>
+  </div>
+</template>
 
-&lt;script setup>
+<script setup>
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -47,9 +47,9 @@ const props = defineProps({
 const id = computed(() => `form-field-${Math.random().toString(36).substr(2, 9)}`);
 
 defineEmits(['update:modelValue']);
-&lt;/script>
+</script>
 
-&lt;style scoped>
+<style scoped>
 .form-field {
   margin-bottom: 1.5rem;
 }
@@ -81,4 +81,4 @@ textarea.form-input {
   resize: vertical;
   min-height: 100px;
 }
-&lt;/style>
+</style>

@@ -1,5 +1,5 @@
-&lt;template>
-  &lt;button
+<template>
+  <button
     :class="[
       'base-button',
       variant,
@@ -8,11 +8,11 @@
     :disabled="disabled"
     v-bind="$attrs"
   >
-    &lt;slot>&lt;/slot>
-  &lt;/button>
-&lt;/template>
+    <slot></slot>
+  </button>
+</template>
 
-&lt;script setup>
+<script setup>
 defineProps({
   variant: {
     type: String,
@@ -24,9 +24,9 @@ defineProps({
     default: false
   }
 });
-&lt;/script>
+</script>
 
-&lt;style scoped>
+<style scoped>
 .base-button {
   padding: 0.8rem 1.5rem;
   border: none;
@@ -68,4 +68,4 @@ defineProps({
   opacity: 0.7;
   cursor: not-allowed;
 }
-&lt;/style>
+</style>

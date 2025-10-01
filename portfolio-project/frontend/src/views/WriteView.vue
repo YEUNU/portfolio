@@ -1,62 +1,63 @@
-&lt;template>
-  &lt;div class="write-view">
-    &lt;h1 class="page-title">{{ isEditing ? '게시글 수정' : '새 글 작성하기' }}&lt;/h1>
-    &lt;ContentEditor
-      :initial-data="post"
-      :api-endpoint="apiEndpoint"
-      :method="isEditing ? 'PUT' : 'POST'"
-      @saved="handleSaved"
-    />
-  &lt;/div>
-&lt;/template>
+<template>
+  <div class="write-view">
+    <h1 class="page-title">{{ isEditing ? '게시글 수정' : '새 글 작성하기' }}</h1>
+    <form @submit.prevent="handleSubmit">
+      <div class="editor-layout">
+        <div class="editor-container">
+          <div class="form-group">
+            <label for="title">제목</label>
+            <input
+              type="text"
+              id="title"
+              v-model="post.title"
+              placeholder="제목을 입력하세요"
+              required
+            />
+          </div>
 
-&lt;script setup>
-import { ref, computed, onMounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import ContentEditor from '@/components/editor/ContentEditor.vue';
-import api from '@/services/api';
+          <div class="form-group">
+            <label for="content">내용</label>
+            <div class="editor-toolbar">
+              <button type="button" @click="triggerFileInput" class="btn-upload">이미지 업로드</button>
+              <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
+            </div>
+            <textarea
+              id="content"
+              ref="contentTextarea"
+              v-model="post.content"
+              rows="20"
+              placeholder="내용을 입력하세요 (마크다운 지원)"
+              required
+            ></textarea>
+          </div>
 
-const router = useRouter();
-const route = useRoute();
+          <div class="form-group">
+            <label for="tags">태그 (쉼표로 구분)</label>
+            <input
+              type="text"
+              id="tags"
+              v-model="post.tags"
+              placeholder="예: vue, javascript, frontend"
+            />
+          </div>
+        </div>
 
-const post = ref({
-  title: '',
-  content: '',
-  tags: '',
-});
-
-const isEditing = computed(() => !!route.params.id);
-
-const apiEndpoint = computed(() => {
-  return isEditing.value 
-    ? `/api/v1/board/${route.params.id}`
-    : '/api/v1/board/';
-});
-
-const handleSaved = () => {
-  router.push({ name: 'Board' });
-};
-
-onMounted(async () => {
-  if (isEditing.value) {
-    try {
-      const response = await api.get(`/api/v1/board/${route.params.id}`);
-      post.value = response.data;
-    } catch (err) {
-      console.error('Failed to load post:', err);
-    }
-  }
-});
-&lt;/script>
-
-&lt;style scoped>
-.write-view {
-  color: var(--color-text);
-  max-width: 1600px;
-  margin: 0 auto;
-  padding: var(--spacing-lg);
-}
-&lt;/style>
+        <div class="preview-container">
+          <h2 class="preview-title">미리보기</h2>
+          <div class="markdown-preview" v-html="compiledMarkdown"></div>
+        </div>
+      </div>
+      
+      <p v-if="error" class="error-message">{{ error }}</p>
+      
+      <div class="form-actions">
+        <button type="submit" class="btn-submit" :disabled="loading">
+          {{ loading ? '저장 중...' : (isEditing ? '수정하기' : '저장하기') }}
+        </button>
+      </div>
+    </form>
+  </div>
+</template>
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
@@ -87,9 +88,14 @@ onMounted(async () => {
     try {
       const postId = route.params.id;
       const response = await api.get(`/api/v1/board/${postId}`);
+      // tags가 배열이면 문자열로 변환
+      if (Array.isArray(response.data.tags)) {
+        response.data.tags = response.data.tags.join(', ');
+      }
       post.value = response.data;
     } catch (err) {
       error.value = '게시글을 불러오는 데 실패했습니다.';
+      console.error(err);
     }
   }
 });
@@ -147,6 +153,7 @@ const handleSubmit = async () => {
     router.push({ name: 'Board' });
   } catch (err) {
     error.value = '게시글 저장에 실패했습니다.';
+    console.error(err);
   } finally {
     loading.value = false;
   }
@@ -155,7 +162,10 @@ const handleSubmit = async () => {
 
 <style scoped>
 .write-view {
-  color: #fff;
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+  color: var(--color-text);
 }
 .page-title {
   font-size: 2rem;
@@ -178,23 +188,39 @@ label {
 input, textarea {
   width: 100%;
   padding: 0.8rem;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  color: #e0e0e0;
+  background-color: var(--color-surface-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  color: var(--color-text);
   font-size: 1rem;
 }
-textarea { resize: vertical; }
+textarea { 
+  resize: vertical; 
+  font-family: inherit;
+}
+.form-actions {
+  margin-top: 2rem;
+  text-align: right;
+}
 .btn-submit {
   padding: 0.8rem 1.5rem;
   border: none;
-  background-color: #3d8bfd;
+  background-color: var(--color-primary);
   color: white;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+.btn-submit:hover {
+  background-color: var(--color-primary-hover);
+}
+.btn-submit:disabled {
+  background-color: var(--color-surface-secondary);
+  cursor: not-allowed;
 }
 .preview-container {
-  border-left: 1px solid #444;
+  border-left: 1px solid var(--color-border);
   padding-left: 2rem;
 }
 .preview-title {
@@ -202,13 +228,13 @@ textarea { resize: vertical; }
   margin-bottom: 1rem;
 }
 .markdown-preview {
-  background-color: #1e1e1e;
+  background-color: var(--color-surface);
   padding: 1rem;
-  border-radius: 8px;
+  border-radius: var(--border-radius);
   min-height: 400px;
 }
 .error-message {
-  color: #e57373;
+  color: var(--color-error);
   margin-top: 1rem;
 }
 .editor-toolbar {
@@ -216,25 +242,28 @@ textarea { resize: vertical; }
 }
 .btn-upload {
   padding: 6px 12px;
-  background-color: #333;
-  color: #fff;
-  border: 1px solid #555;
+  background-color: var(--color-surface-secondary);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-upload:hover {
+  background-color: var(--color-surface);
 }
 
-/* 모바일 화면에서 1열 레이아웃으로 변경 */
+/* Mobile responsive layout */
 @media (max-width: 1024px) {
   .editor-layout {
     grid-template-columns: 1fr;
   }
   .preview-container {
     border-left: none;
-    border-top: 1px solid #444;
+    border-top: 1px solid var(--color-border);
     padding-left: 0;
     padding-top: 2rem;
     margin-top: 2rem;
   }
 }
 </style>
-
