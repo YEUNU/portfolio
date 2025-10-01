@@ -1,6 +1,5 @@
 services:
   #--- Gateway ---
-  # 외부 요청을 받아 각 서비스로 분배하는 리버스 프록시
   nginx:
     build:
       context: ./nginx
@@ -10,7 +9,6 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      # SSL 인증서 마운트
       - ./ssl/cloudflare-origin.pem:/etc/ssl/certs/cloudflare-origin.pem
       - ./ssl/cloudflare-origin.key:/etc/ssl/private/cloudflare-origin.key
     depends_on:
@@ -19,50 +17,37 @@ services:
     restart: unless-stopped
 
   #--- Backend Service ---
-  # 비즈니스 로직을 처리하는 FastAPI 애플리케이션
   backend:
     build: ./backend
-    # 로컬 소스 코드를 컨테이너 내부로 마운트하여 실시간 코드 변경 반영
+    # --- [핵심 수정 사항] ---
+    # backend 폴더 전체를 컨테이너의 /app 디렉토리로 마운트합니다.
+    # 이렇게 해야 alembic.ini 와 같은 설정 파일들이 컨테이너에 포함됩니다.
     volumes:
-      - ./backend/app:/app/app
-    # env_file을 통해 환경 변수 설정
+      - ./backend:/app
+    # -------------------------
     env_file:
       - .env
-    # DB 서비스가 준비된 후에 시작하도록 설정
     depends_on:
       db:
         condition: service_healthy
-    # 외부에서는 Nginx를 통해서만 접근하므로 포트를 노출할 필요 없음
-    # ports:
-    #   - "8000:8000"
     restart: unless-stopped
 
   #--- Frontend Service ---
-  # Vue.js 정적 파일을 서빙하는 Nginx
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    environment:
-      - NODE_ENV=production
-    # 외부에서는 Nginx를 통해서만 접근하므로 포트를 노출할 필요 없음
-    # ports:
-    #   - "3000:80"
     depends_on:
       - backend
     restart: unless-stopped
 
   #--- Database Service ---
-  # 데이터를 저장하는 PostgreSQL 데이터베이스
   db:
     image: postgres:13
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
       - .env
-    # 로컬에서 DB 직접 접근이 필요할 경우에만 주석 해제하여 사용
-    # ports:
-    #   - "5432:5432"
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
