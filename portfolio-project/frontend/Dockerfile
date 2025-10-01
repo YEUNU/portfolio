@@ -22,10 +22,9 @@ FROM nginx:stable-alpine as production-stage
 # 빌드 단계에서 생성된 정적 파일들을 Nginx의 기본 서빙 디렉터리로 복사합니다.
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-# SPA(Single Page Application)를 위한 Nginx 설정을 복사합니다.
-# 이 설정은 Nginx 컨테이너 빌드 시점에 복사됩니다.
-# COPY nginx.conf /etc/nginx/conf.d/default.conf 
-# -> 이 방식 대신 docker-compose에서 볼륨을 마운트하여 유연성을 높입니다.
+# SPA(Single Page Application) 라우팅을 처리하기 위한 커스텀 Nginx 설정을 복사합니다.
+# 이 설정이 있어야 /post/1과 같은 경로에서 404 에러가 발생하지 않습니다.
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Nginx 컨테이너가 80번 포트를 노출하도록 설정합니다.
 EXPOSE 80
