@@ -3,7 +3,7 @@
     <!-- 왼쪽 사이드바: 메인 네비게이션 -->
     <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
       <div class="sidebar-header">
-        <router-link to="/" class="site-title" @click="closeSidebar">성연우의 포트폴리오</router-link>
+        <router-link to="/" class="site-title" @click="closeSidebar">성연우의 \n포트폴리오</router-link>
         <!-- 모바일용 닫기 버튼 -->
         <button @click="closeSidebar" class="btn-close-sidebar">&times;</button>
       </div>
