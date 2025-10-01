@@ -1,31 +1,33 @@
 <template>
   <div class="write-view">
-    <h1 class="page-title">{{ isEditing ? '게시글 수정' : '새 글 작성하기' }}</h1>
+    <h1 class="page-title">{{ isEditing ? '글 수정' : '새 글 작성' }}</h1>
     <div class="editor-layout">
-      <div class="editor-container">
-        <form @submit.prevent="handleSubmit" class="write-form">
-          <div class="form-group">
-            <label for="title">제목</label>
-            <input id="title" type="text" v-model="post.title" required />
-          </div>
-          <div class="form-group">
-            <label for="tags">해시태그 (쉼표로 구분)</label>
-            <input id="tags" type="text" v-model="post.tags" placeholder="e.g., vue, fastapi, portfolio" />
-          </div>
-          <div class="form-group">
-            <label for="content">내용 (Markdown 지원)</label>
-            <div class="editor-toolbar">
+      <form @submit.prevent="handleSubmit">
+        <div class="form-group">
+          <label for="title">제목</label>
+          <input type="text" id="title" v-model="post.title" placeholder="제목을 입력하세요" required>
+        </div>
+
+        <div class="form-group">
+          <label for="tags">태그</label>
+          <input type="text" id="tags" v-model="post.tags" placeholder="쉼표(,)로 구분하여 입력하세요">
+        </div>
+        
+        <div class="form-group">
+          <label for="content">내용</label>
+          <div class="editor-toolbar">
               <button type="button" @click="triggerFileInput" class="btn-upload">이미지 업로드</button>
-              <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
-            </div>
-            <textarea id="content" ref="contentTextarea" v-model="post.content" rows="15" required></textarea>
           </div>
-          <button type="submit" class="btn-submit" :disabled="loading">
-            {{ loading ? '저장 중...' : '저장하기' }}
-          </button>
-          <p v-if="error" class="error-message">{{ error }}</p>
-        </form>
-      </div>
+          <textarea id="content" ref="contentTextarea" v-model="post.content" rows="20" placeholder="내용을 입력하세요 (Markdown 지원)"></textarea>
+          <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" style="display: none;" />
+        </div>
+
+        <button type="submit" class="btn-submit" :disabled="loading">
+          {{ loading ? '저장 중...' : '저장하기' }}
+        </button>
+        <p v-if="error" class="error-message">{{ error }}</p>
+      </form>
+      
       <div class="preview-container">
         <h2 class="preview-title">미리보기</h2>
         <div class="markdown-preview" v-html="compiledMarkdown"></div>
@@ -65,6 +67,7 @@ onMounted(async () => {
       const response = await api.get(`/api/v1/board/${postId}`);
       post.value = response.data;
     } catch (err) {
+      console.error(err);
       error.value = '게시글을 불러오는 데 실패했습니다.';
     }
   }
@@ -122,6 +125,7 @@ const handleSubmit = async () => {
     }
     router.push({ name: 'Board' });
   } catch (err) {
+    console.error(err);
     error.value = '게시글 저장에 실패했습니다.';
   } finally {
     loading.value = false;
@@ -199,7 +203,6 @@ textarea { resize: vertical; }
   cursor: pointer;
 }
 
-/* 모바일 화면에서 1열 레이아웃으로 변경 */
 @media (max-width: 1024px) {
   .editor-layout {
     grid-template-columns: 1fr;

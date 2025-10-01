@@ -1,0 +1,84 @@
+/* Theme Colors */
+:root {
+  --color-primary: #3d8bfd;
+  --color-primary-hover: #2a79e8;
+  --color-background: #121212;
+  --color-surface: #1e1e1e;
+  --color-surface-light: #2a2a2a;
+  --color-border: #444;
+  --color-text: #e0e0e0;
+  --color-text-light: #a0a0a0;
+  --color-text-dark: #757575;
+  --color-error: #e57373;
+  --color-success: #4caf50;
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 3rem;
+  
+  /* Border Radius */
+  --border-radius: 8px;
+  
+  /* Transitions */
+  --transition-speed: 0.2s;
+}
+
+/* Common Layout Classes */
+.page-layout {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+
+.page-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-lg);
+}
+
+/* Loading & Error States */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+.error-message {
+  color: var(--color-error);
+  text-align: center;
+  margin: var(--spacing-md) 0;
+}
+
+/* Grid & Flex Layouts */
+.grid-layout {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.flex-layout {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+/* Responsive Breakpoints */
+@media (max-width: 1024px) {
+  .page-layout {
+    padding: var(--spacing-md);
+  }
+  
+  .page-title {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-title {
+    font-size: 1.8rem;
+  }
+}

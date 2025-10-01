@@ -1,38 +1,62 @@
-<template>
-  <div class="write-view">
-    <h1 class="page-title">{{ isEditing ? '게시글 수정' : '새 글 작성하기' }}</h1>
-    <div class="editor-layout">
-      <div class="editor-container">
-        <form @submit.prevent="handleSubmit" class="write-form">
-          <div class="form-group">
-            <label for="title">제목</label>
-            <input id="title" type="text" v-model="post.title" required />
-          </div>
-          <div class="form-group">
-            <label for="tags">해시태그 (쉼표로 구분)</label>
-            <input id="tags" type="text" v-model="post.tags" placeholder="e.g., vue, fastapi, portfolio" />
-          </div>
-          <div class="form-group">
-            <label for="content">내용 (Markdown 지원)</label>
-            <div class="editor-toolbar">
-              <button type="button" @click="triggerFileInput" class="btn-upload">이미지 업로드</button>
-              <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
-            </div>
-            <textarea id="content" ref="contentTextarea" v-model="post.content" rows="15" required></textarea>
-          </div>
-          <button type="submit" class="btn-submit" :disabled="loading">
-            {{ loading ? '저장 중...' : '저장하기' }}
-          </button>
-          <p v-if="error" class="error-message">{{ error }}</p>
-        </form>
-      </div>
-      <div class="preview-container">
-        <h2 class="preview-title">미리보기</h2>
-        <div class="markdown-preview" v-html="compiledMarkdown"></div>
-      </div>
-    </div>
-  </div>
-</template>
+&lt;template>
+  &lt;div class="write-view">
+    &lt;h1 class="page-title">{{ isEditing ? '게시글 수정' : '새 글 작성하기' }}&lt;/h1>
+    &lt;ContentEditor
+      :initial-data="post"
+      :api-endpoint="apiEndpoint"
+      :method="isEditing ? 'PUT' : 'POST'"
+      @saved="handleSaved"
+    />
+  &lt;/div>
+&lt;/template>
+
+&lt;script setup>
+import { ref, computed, onMounted } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
+import ContentEditor from '@/components/editor/ContentEditor.vue';
+import api from '@/services/api';
+
+const router = useRouter();
+const route = useRoute();
+
+const post = ref({
+  title: '',
+  content: '',
+  tags: '',
+});
+
+const isEditing = computed(() => !!route.params.id);
+
+const apiEndpoint = computed(() => {
+  return isEditing.value 
+    ? `/api/v1/board/${route.params.id}`
+    : '/api/v1/board/';
+});
+
+const handleSaved = () => {
+  router.push({ name: 'Board' });
+};
+
+onMounted(async () => {
+  if (isEditing.value) {
+    try {
+      const response = await api.get(`/api/v1/board/${route.params.id}`);
+      post.value = response.data;
+    } catch (err) {
+      console.error('Failed to load post:', err);
+    }
+  }
+});
+&lt;/script>
+
+&lt;style scoped>
+.write-view {
+  color: var(--color-text);
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: var(--spacing-lg);
+}
+&lt;/style>
 
 <script setup>
 import { ref, computed, onMounted, nextTick } from 'vue';
