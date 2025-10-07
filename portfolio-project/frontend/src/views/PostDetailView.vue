@@ -22,11 +22,13 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '@/services/api';
 import MarkdownPreview from '@/components/common/MarkdownPreview.vue';
+import { useMeta } from '@/composables/useMeta';
 
 const route = useRoute();
 const post = ref(null);
 const loading = ref(true);
 const error = ref(null);
+const { updateMeta, addStructuredData } = useMeta();
 
 // 날짜 포맷팅 computed 속성은 그대로 유지합니다.
 const formattedDate = computed(() => {
@@ -44,12 +46,63 @@ const fetchPost = async (postId) => {
   try {
     const response = await api.get(`/api/v1/board/${postId}`);
     post.value = response.data;
+    updatePostMeta(response.data);
   } catch (err) {
     console.error(`Failed to fetch post ${postId}:`, err);
     error.value = '게시글을 불러오는 데 실패했습니다.';
   } finally {
     loading.value = false;
   }
+};
+
+const updatePostMeta = (postData) => {
+  // 게시글의 첫 번째 이미지 찾기
+  const getFirstImage = (content) => {
+    const regex = /!\[.*?]\((.*?)\)/;
+    const match = content.match(regex);
+    if (match && match[1]) {
+      const imageUrl = match[1];
+      return imageUrl.startsWith('/') ? `${api.defaults.baseURL}${imageUrl}` : imageUrl;
+    }
+    return '/og-image.jpg';
+  };
+
+  // 메타 설명을 위한 텍스트 추출 (마크다운 제거)
+  const getDescriptionFromContent = (content) => {
+    return content
+      .replace(/[#*()[\]]/g, '') // 마크다운 문법 제거
+      .substring(0, 160) // 160자로 제한
+      .trim();
+  };
+
+  const title = `${postData.title} - 성연우의 포트폴리오`;
+  const description = getDescriptionFromContent(postData.content);
+  const ogImage = getFirstImage(postData.content);
+
+  updateMeta({
+    title,
+    description,
+    keywords: `성연우, 포트폴리오, ${postData.title}, ${postData.tags || '개발자'}`,
+    canonical: `https://your-domain.com/post/${postData.id}`,
+    ogImage
+  });
+
+  // 게시글 구조화된 데이터
+  addStructuredData({
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    "headline": postData.title,
+    "description": description,
+    "author": {
+      "@type": "Person",
+      "name": "성연우"
+    },
+    "datePublished": postData.created_at,
+    "dateModified": postData.updated_at || postData.created_at,
+    "url": `https://your-domain.com/post/${postData.id}`,
+    "image": ogImage,
+    "keywords": postData.tags
+  });
 };
 
 // 컴포넌트가 처음 마운트될 때 게시글을 불러옵니다.

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# 관리자 페이지는 크롤링 제외
+Disallow: /login
+Disallow: /write
+
+# sitemap 위치 지정
+Sitemap: https://portfolio.ywsung.ai.kr/sitemap.xml

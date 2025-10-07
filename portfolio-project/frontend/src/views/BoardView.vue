@@ -27,6 +27,7 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router'; 
 import api from '@/services/api';
 import { useAuthStore } from '@/store/auth';
+import { useMeta } from '@/composables/useMeta';
 
 const posts = ref([]);
 const loading = ref(true);
@@ -34,6 +35,7 @@ const error = ref(null);
 const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
+const { updateMeta, addStructuredData } = useMeta();
 
 const pageTitle = computed(() => {
   return route.query.tag ? `# ${route.query.tag}` : 'All Posts';
@@ -41,7 +43,7 @@ const pageTitle = computed(() => {
 
 const getFirstImage = (content) => {
   if (!content) return null;
-  const regex = /!\[.*?\]\((.*?)\)/;
+  const regex = /!\[.*?]\((.*?)\)/;
   const match = content.match(regex);
   if (match && match[1]) {
     const imageUrl = match[1];
@@ -74,9 +76,45 @@ const fetchPosts = async () => {
   }
 };
 
-watch(() => route.query.tag, fetchPosts);
+watch(() => route.query.tag, () => {
+  fetchPosts();
+  updatePageMeta();
+});
 
-onMounted(fetchPosts);
+onMounted(() => {
+  fetchPosts();
+  updatePageMeta();
+});
+
+const updatePageMeta = () => {
+  const tag = route.query.tag;
+  const title = tag ? `${tag} - 성연우의 포트폴리오` : '성연우의 포트폴리오 | 개발자 포트폴리오';
+  const description = tag 
+    ? `${tag} 관련 프로젝트들을 확인해보세요.` 
+    : '성연우의 개발자 포트폴리오입니다. 다양한 웹 개발 프로젝트들을 확인해보세요.';
+  
+  updateMeta({
+    title,
+    description,
+    keywords: tag ? `성연우, 포트폴리오, ${tag}, 개발자` : '성연우, 포트폴리오, 개발자, 웹개발, 프론트엔드, 백엔드',
+    canonical: tag ? `https://your-domain.com/?tag=${tag}` : 'https://your-domain.com'
+  });
+
+  // 구조화된 데이터 추가
+  if (!tag) {
+    addStructuredData({
+      "@context": "https://schema.org",
+      "@type": "Portfolio",
+      "name": "성연우의 포트폴리오",
+      "description": "웹 개발자 성연우의 포트폴리오 사이트",
+      "author": {
+        "@type": "Person",
+        "name": "성연우"
+      },
+      "url": "https://your-domain.com"
+    });
+  }
+};
 
 const viewPost = (id) => {
   router.push({ name: 'PostDetail', params: { id } });

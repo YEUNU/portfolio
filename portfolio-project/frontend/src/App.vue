@@ -1,5 +1,8 @@
 <template>
   <div class="app-container">
+    <!-- PreloadLinks 컴포넌트 추가 -->
+    <PreloadLinks />
+    
     <!-- 왼쪽 사이드바: 메인 네비게이션 -->
     <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
       <div class="sidebar-header">
@@ -62,6 +65,7 @@ import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/auth';
+import PreloadLinks from '@/components/common/PreloadLinks.vue';
 
 const router = useRouter();
 const route = useRoute();
