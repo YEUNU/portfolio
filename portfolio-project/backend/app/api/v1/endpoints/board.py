@@ -16,13 +16,14 @@ def read_posts(
     tags: Optional[str] = Query(None, description="쉼표로 구분된 태그들")
 ):
     """
-    모든 게시글을 조회하거나, 태그를 기준으로 필터링하여 조회합니다.
+    포트폴리오 게시글을 조회하거나, 태그를 기준으로 필터링하여 조회합니다.
+    고정 페이지(About, Contact)는 제외됩니다.
     """
     if tags:
         tag_list = [tag.strip() for tag in tags.split(',')]
-        posts = crud_board.board.get_multi_by_tags(db, tags=tag_list, skip=skip, limit=limit)
+        posts = crud_board.board.get_multi_by_tags_posts_only(db, tags=tag_list, skip=skip, limit=limit)
     else:
-        posts = crud_board.board.get_multi(db, skip=skip, limit=limit)
+        posts = crud_board.board.get_multi_posts_only(db, skip=skip, limit=limit)
     return posts
 
 @router.get("/tags", response_model=List[str])

@@ -19,8 +19,21 @@ class CRUDBoard(CRUDBase[Board, BoardCreate, BoardUpdate]):
         filters = [self.model.tags.ilike(f"%{tag}%") for tag in tags]
         return db.query(self.model).filter(or_(*filters)).offset(skip).limit(limit).all()
 
+    def get_multi_posts_only(self, db: Session, *, skip: int = 0, limit: int = 100) -> List[Board]:
+        """고정 페이지(slug가 있는 게시글)를 제외하고 일반 포트폴리오 게시글만 조회합니다."""
+        return db.query(self.model).filter(self.model.slug.is_(None)).offset(skip).limit(limit).all()
+
+    def get_multi_by_tags_posts_only(self, db: Session, *, tags: List[str], skip: int = 0, limit: int = 100) -> List[Board]:
+        """태그별 필터링하되, 고정 페이지는 제외하고 일반 포트폴리오 게시글만 조회합니다."""
+        filters = [self.model.tags.ilike(f"%{tag}%") for tag in tags]
+        return db.query(self.model).filter(or_(*filters)).filter(self.model.slug.is_(None)).offset(skip).limit(limit).all()
+
     def get_all_tags(self, db: Session) -> List[str]:
-        all_tags_tuples = db.query(self.model.tags).filter(self.model.tags.isnot(None)).all()
+        # 고정 페이지를 제외하고 태그를 수집합니다.
+        all_tags_tuples = db.query(self.model.tags).filter(
+            self.model.tags.isnot(None),
+            self.model.slug.is_(None)  # slug가 없는 일반 게시글만
+        ).all()
         unique_tags = set()
         for tags_tuple in all_tags_tuples:
             tags_str = tags_tuple[0]
