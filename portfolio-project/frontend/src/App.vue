@@ -58,7 +58,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
 import { useAuthStore } from '@/store/auth';
@@ -99,6 +99,11 @@ const handleLogout = () => {
   authStore.logout();
   router.push({ name: 'Login' });
 };
+
+// 컴포넌트 언마운트 시 타이머 정리
+onUnmounted(() => {
+  authStore.clearTimer();
+});
 
 onMounted(fetchAllTags);
 </script>
@@ -170,9 +175,9 @@ onMounted(fetchAllTags);
   padding: 30px 50px;
   border-bottom: 1px solid #2a2a2a;
 }
-.header-actions { display: flex; align-items: center; }
+.header-actions { display: flex; align-items: center; gap: 15px; }
 
-.btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; text-decoration: none; cursor: pointer; transition: background-color 0.2s, color 0.2s; margin-left: 15px; }
+.btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; text-decoration: none; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
 .btn-primary { background-color: #3d8bfd; color: #fff; }
 .btn-primary:hover { background-color: #2a79e8; }
 .btn-secondary { background-color: #2a2a2a; color: #e0e0e0; }

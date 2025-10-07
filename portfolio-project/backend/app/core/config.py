@@ -12,7 +12,8 @@ class Settings(BaseSettings):
 
     # JWT 토큰 설정
     SECRET_KEY: str
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8 # 8일
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 2  # 2시간 (기본값)
+    ADMIN_SESSION_TIMEOUT_MINUTES: int = 30  # 관리자 세션 타임아웃 (30분)
 
     # PostgreSQL Database
     POSTGRES_SERVER: str
