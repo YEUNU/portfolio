@@ -23,6 +23,10 @@ const renderedMarkdown = computed(() => {
 <style scoped>
 .markdown-preview {
   line-height: 1.7;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
+  overflow-x: hidden; /* 가로 스크롤 방지 */
 }
 
 /* v-html로 렌더링되는 컨텐츠는 scoped 스타일이 적용되지 않으므로,
@@ -69,8 +73,23 @@ const renderedMarkdown = computed(() => {
 }
 
 .markdown-preview :deep(img) {
-  max-width: 100%;
-  height: auto;
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: 500px; /* 최대 높이 제한 */
   border-radius: 8px;
+  display: block;
+  margin: 1rem auto; /* 중앙 정렬 */
+  object-fit: contain; /* 이미지 비율 유지하며 컨테이너에 맞춤 */
+}
+
+/* 테이블이나 다른 요소 안의 이미지도 동일하게 처리 */
+.markdown-preview :deep(table img),
+.markdown-preview :deep(p img),
+.markdown-preview :deep(div img) {
+  max-width: 100% !important;
+  width: auto !important;
+  height: auto !important;
+  max-height: 500px;
 }
 </style>

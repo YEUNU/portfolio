@@ -188,6 +188,21 @@ const handleSubmit = async () => {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 2rem;
+  align-items: start; /* 상단 정렬로 변경 */
+  height: auto;
+  min-height: 600px; /* 최소 높이 설정 */
+}
+
+.editor-container {
+  min-width: 0; /* 그리드 아이템이 축소될 수 있도록 */
+  overflow: hidden; /* 콘텐츠가 넘치지 않도록 */
+}
+
+.preview-container {
+  min-width: 0; /* 그리드 아이템이 축소될 수 있도록 */
+  overflow: hidden; /* 콘텐츠가 넘치지 않도록 */
+  border-left: 1px solid var(--color-border);
+  padding-left: 2rem;
 }
 .form-group {
   margin-bottom: 1.5rem;
@@ -232,6 +247,8 @@ textarea {
   cursor: not-allowed;
 }
 .preview-container {
+  min-width: 0; /* 그리드 아이템이 축소될 수 있도록 */
+  overflow: hidden; /* 콘텐츠가 넘치지 않도록 */
   border-left: 1px solid var(--color-border);
   padding-left: 2rem;
 }
@@ -244,6 +261,10 @@ textarea {
   padding: 1rem;
   border-radius: var(--border-radius);
   min-height: 400px;
+  max-height: 80vh; /* 최대 높이 제한 */
+  overflow-y: auto; /* 세로 스크롤 허용 */
+  word-wrap: break-word; /* 긴 단어 줄바꿈 */
+  overflow-wrap: break-word; /* 긴 단어 줄바꿈 */
 }
 .error-message {
   color: var(--color-error);
