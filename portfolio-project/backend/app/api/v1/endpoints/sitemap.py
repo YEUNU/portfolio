@@ -13,7 +13,7 @@ def generate_sitemap(db: Session = Depends(deps.get_db)):
     """
     검색 엔진을 위한 sitemap.xml을 동적으로 생성합니다.
     """
-    base_url = "https://your-domain.com"  # 실제 도메인으로 변경 필요
+    base_url = "https://portfolio.ywsung.ai.kr"  # 실제 도메인으로 변경 필요
     
     # 기본 페이지들
     urls = [
