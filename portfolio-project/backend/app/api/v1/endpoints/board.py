@@ -33,6 +33,13 @@ def get_all_tags(db: Session = Depends(deps.get_db)):
     """
     return crud_board.board.get_all_tags(db)
 
+@router.get("/tags/count", response_model=dict)
+def get_tags_with_count(db: Session = Depends(deps.get_db)):
+    """
+    태그별 포스팅 개수를 포함한 태그 목록을 조회합니다.
+    """
+    return crud_board.board.get_tags_with_count(db)
+
 
 @router.post("/", response_model=schemas.Board, status_code=status.HTTP_201_CREATED)
 def create_post(

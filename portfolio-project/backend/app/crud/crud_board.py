@@ -42,6 +42,24 @@ class CRUDBoard(CRUDBase[Board, BoardCreate, BoardUpdate]):
                 unique_tags.update(tags_list)
         return sorted(list(unique_tags))
 
+    def get_tags_with_count(self, db: Session) -> dict:
+        """태그별 포스팅 개수를 반환합니다."""
+        # 고정 페이지를 제외하고 태그를 수집합니다.
+        all_tags_tuples = db.query(self.model.tags).filter(
+            self.model.tags.isnot(None),
+            self.model.slug.is_(None)  # slug가 없는 일반 게시글만
+        ).all()
+        
+        tag_counts = {}
+        for tags_tuple in all_tags_tuples:
+            tags_str = tags_tuple[0]
+            if tags_str:
+                tags_list = [tag.strip() for tag in tags_str.split(',')]
+                for tag in tags_list:
+                    tag_counts[tag] = tag_counts.get(tag, 0) + 1
+        
+        return tag_counts
+
     def get_by_slug(self, db: Session, *, slug: str) -> Optional[Board]:
         return db.query(Board).filter(Board.slug == slug).first()
 

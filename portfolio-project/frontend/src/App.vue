@@ -18,12 +18,14 @@
               <!-- [수정] li > router-link 구조로 변경 -->
               <li>
                 <router-link :to="{ path: '/', query: {} }" class="tag-item" :class="{ active: isPortfolioActive && !$route.query.tag }" @click="closeSidebar">
-                  All Posts
+                  <span class="tag-name">All Posts</span>
+                  <span class="tag-count" v-if="totalPosts > 0">({{ totalPosts }})</span>
                 </router-link>
               </li>
-              <li v-for="tag in allTags" :key="tag">
-                <router-link :to="{ path: '/', query: { tag: tag } }" class="tag-item" :class="{ active: isPortfolioActive && $route.query.tag === tag }" @click="filterByTag(tag)">
-                  {{ tag }}
+              <li v-for="tag in sortedTagsWithCount" :key="tag.name">
+                <router-link :to="{ path: '/', query: { tag: tag.name } }" class="tag-item" :class="{ active: isPortfolioActive && $route.query.tag === tag.name }" @click="filterByTag(tag.name)">
+                  <span class="tag-name">{{ tag.name }}</span>
+                  <span class="tag-count">({{ tag.count }})</span>
                 </router-link>
               </li>
             </ul>
@@ -71,10 +73,19 @@ const router = useRouter();
 const route = useRoute();
 const authStore = useAuthStore();
 const allTags = ref([]);
+const tagCounts = ref({});
+const totalPosts = ref(0);
 const isSidebarOpen = ref(false);
 
 const isPortfolioActive = computed(() => {
   return route.name === 'Board' || route.name === 'PostDetail';
+});
+
+const sortedTagsWithCount = computed(() => {
+  return allTags.value.map(tag => ({
+    name: tag,
+    count: tagCounts.value[tag] || 0
+  })).sort((a, b) => b.count - a.count); // 포스팅 개수가 많은 순으로 정렬
 });
 
 const toggleSidebar = () => {
@@ -86,8 +97,25 @@ const closeSidebar = () => {
 
 const fetchAllTags = async () => {
   try {
-    const response = await api.get('/api/v1/board/tags');
-    allTags.value = response.data;
+    // 태그별 개수 정보 가져오기
+    const countResponse = await api.get('/api/v1/board/tags/count');
+    tagCounts.value = countResponse.data;
+    
+    // 기존 태그 목록 가져오기
+    const tagsResponse = await api.get('/api/v1/board/tags');
+    allTags.value = tagsResponse.data;
+    
+    // 전체 포스팅 개수 계산
+    totalPosts.value = Object.values(tagCounts.value).reduce((sum, count) => {
+      const posts = new Set();
+      // 중복 제거를 위해 실제 전체 포스팅 수를 별도로 가져와야 할 수도 있음
+      return sum;
+    }, 0);
+    
+    // 전체 포스팅 개수를 위한 별도 API 호출
+    const allPostsResponse = await api.get('/api/v1/board/');
+    totalPosts.value = allPostsResponse.data.length;
+    
   } catch (err) {
     console.error('Failed to fetch tags:', err);
   }
@@ -156,7 +184,9 @@ onMounted(fetchAllTags);
 /* [수정] router-link는 기본적으로 a 태그이므로, 스타일이 약간 달라질 수 있습니다. */
 /* a 태그의 기본 스타일을 초기화하고 기존 스타일을 적용합니다. */
 .tag-item { 
-  display: block; /* a 태그를 블록 요소로 만들어 클릭 영역을 넓힙니다. */
+  display: flex; /* flexbox로 변경하여 태그명과 개수를 양쪽 정렬 */
+  justify-content: space-between; /* 태그명과 개수를 양쪽 끝에 정렬 */
+  align-items: center;
   color: #a0a0a0; 
   cursor: pointer; 
   padding: 6px 0; 
@@ -164,6 +194,16 @@ onMounted(fetchAllTags);
   text-decoration: none; /* 밑줄 제거 */
 }
 .tag-item:hover, .tag-item.active { color: #3d8bfd; }
+
+.tag-name {
+  flex: 1; /* 태그명이 남은 공간을 차지 */
+}
+
+.tag-count {
+  font-size: 0.85em;
+  opacity: 0.7;
+  margin-left: 8px;
+}
 
 .main-wrapper {
   flex: 1;
