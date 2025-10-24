@@ -19,7 +19,9 @@ def init_db(db: Session) -> None:
         user = crud.user.create(db, obj_in=user_in)
         print(f"Superuser '{settings.FIRST_ADMIN_USERNAME}' created")
     else:
-        print(f"Superuser '{settings.FIRST_ADMIN_USERNAME}' already exists in database")
+        # 이미 존재하면 비밀번호를 .env 값으로 갱신
+        crud.user.update(db, db_obj=user, obj_in={"password": settings.FIRST_ADMIN_PASSWORD})
+        print(f"Superuser '{settings.FIRST_ADMIN_USERNAME}' password updated from .env")
 
     # 2. 'About' 페이지 생성 (Board 테이블 사용)
     # slug를 기준으로 'about' 페이지가 있는지 확인합니다.

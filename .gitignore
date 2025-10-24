@@ -7,6 +7,14 @@
 .AppleDouble
 .LSOverride
 
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.tiff
+*.psd
+*.ai
+
 # Icon must end with two \r
 Icon
 
