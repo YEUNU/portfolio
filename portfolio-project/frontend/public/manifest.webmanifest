@@ -1,0 +1,15 @@
+{
+  "name": "성연우의 포트폴리오",
+  "short_name": "YWSUNG",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#0ea5a4",
+  "icons": [
+    {
+      "src": "<%= BASE_URL %>favicon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
