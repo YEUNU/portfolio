@@ -37,28 +37,28 @@ onMounted(async () => {
     // [핵심 수정] 올바른 slug 기반 API 엔드포인트를 호출합니다.
     const response = await api.get('/api/v1/board/slug/contact');
     page.value = response.data;
-    
+
     // SEO 메타 데이터 설정
     updateMeta({
       title: `${page.value.title} - 성연우의 포트폴리오`,
-      description: '성연우에게 연락하세요. 이메일, GitHub 등 다양한 연락 방법을 확인할 수 있습니다.',
+      description:
+        '성연우에게 연락하세요. 이메일, GitHub 등 다양한 연락 방법을 확인할 수 있습니다.',
       keywords: '성연우, Contact, 연락처, 이메일, GitHub, 문의',
-      canonical: 'https://your-domain.com/contact'
+      canonical: 'https://your-domain.com/contact',
     });
 
     // Contact 페이지 구조화된 데이터
     addStructuredData({
-      "@context": "https://schema.org",
-      "@type": "ContactPage",
-      "name": page.value.title,
-      "description": "성연우의 연락처 정보",
-      "author": {
-        "@type": "Person",
-        "name": "성연우"
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      name: page.value.title,
+      description: '성연우의 연락처 정보',
+      author: {
+        '@type': 'Person',
+        name: '성연우',
       },
-      "url": "https://your-domain.com/contact"
+      url: 'https://your-domain.com/contact',
     });
-    
   } catch (err) {
     console.error('Failed to load page content:', err);
     error.value = '페이지를 불러오는 데 실패했습니다.';
@@ -113,4 +113,3 @@ onMounted(async () => {
   margin-bottom: 2rem;
 }
 </style>
-

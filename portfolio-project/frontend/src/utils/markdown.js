@@ -9,7 +9,7 @@ marked.setOptions({
   // sanitize 옵션은 최신 버전에서 deprecated 되었습니다.
   // 대신, 관리자만 사용하는 페이지임을 신뢰하고 HTML을 그대로 렌더링합니다.
   // 실제 프로덕션에서는 DOMPurify 같은 라이브러리로 XSS를 방지하는 것이 좋습니다.
-  sanitize: false, 
+  sanitize: false,
 });
 
 // 설정된 marked 인스턴스를 export하여 모든 컴포넌트에서 일관되게 사용합니다.

@@ -1,8 +1,6 @@
 <template>
   <div class="page-container post-detail-view">
-    <div v-if="loading" class="loading">
-      게시글을 불러오는 중입니다...
-    </div>
+    <div v-if="loading" class="loading">게시글을 불러오는 중입니다...</div>
     <div v-else-if="error" class="error">
       {{ error }}
     </div>
@@ -84,24 +82,24 @@ const updatePostMeta = (postData) => {
     description,
     keywords: `성연우, 포트폴리오, ${postData.title}, ${postData.tags || '개발자'}`,
     canonical: `https://your-domain.com/post/${postData.id}`,
-    ogImage
+    ogImage,
   });
 
   // 게시글 구조화된 데이터
   addStructuredData({
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    "headline": postData.title,
-    "description": description,
-    "author": {
-      "@type": "Person",
-      "name": "성연우"
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: postData.title,
+    description: description,
+    author: {
+      '@type': 'Person',
+      name: '성연우',
     },
-    "datePublished": postData.created_at,
-    "dateModified": postData.updated_at || postData.created_at,
-    "url": `https://your-domain.com/post/${postData.id}`,
-    "image": ogImage,
-    "keywords": postData.tags
+    datePublished: postData.created_at,
+    dateModified: postData.updated_at || postData.created_at,
+    url: `https://your-domain.com/post/${postData.id}`,
+    image: ogImage,
+    keywords: postData.tags,
   });
 };
 
@@ -146,7 +144,8 @@ watch(
 }
 
 /* 로딩 및 에러 메시지 스타일 추가 */
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   padding: var(--spacing-xl);
   color: var(--color-text-dark);

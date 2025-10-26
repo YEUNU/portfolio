@@ -2,28 +2,42 @@
   <div class="app-container">
     <!-- PreloadLinks 컴포넌트 추가 -->
     <PreloadLinks />
-    
+
     <!-- 왼쪽 사이드바: 메인 네비게이션 -->
     <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
       <div class="sidebar-header">
-        <router-link to="/" class="site-title" @click="closeSidebar">성연우의<br>포트폴리오</router-link>
+        <router-link to="/" class="site-title" @click="closeSidebar"
+          >성연우의<br />포트폴리오</router-link
+        >
         <!-- 모바일용 닫기 버튼 -->
         <button @click="closeSidebar" class="btn-close-sidebar">&times;</button>
       </div>
       <nav class="main-nav">
         <ul>
           <li>
-            <span class="nav-category" :class="{ 'category-active': isPortfolioActive }">Portfolio</span>
+            <span class="nav-category" :class="{ 'category-active': isPortfolioActive }"
+              >Portfolio</span
+            >
             <ul class="tag-list">
               <!-- [수정] li > router-link 구조로 변경 -->
               <li>
-                <router-link :to="{ path: '/', query: {} }" class="tag-item" :class="{ active: isPortfolioActive && !$route.query.tag }" @click="closeSidebar">
+                <router-link
+                  :to="{ path: '/', query: {} }"
+                  class="tag-item"
+                  :class="{ active: isPortfolioActive && !$route.query.tag }"
+                  @click="closeSidebar"
+                >
                   <span class="tag-name">All Posts</span>
                   <span class="tag-count" v-if="totalPosts > 0">({{ totalPosts }})</span>
                 </router-link>
               </li>
               <li v-for="tag in sortedTagsWithCount" :key="tag.name">
-                <router-link :to="{ path: '/', query: { tag: tag.name } }" class="tag-item" :class="{ active: isPortfolioActive && $route.query.tag === tag.name }" @click="filterByTag(tag.name)">
+                <router-link
+                  :to="{ path: '/', query: { tag: tag.name } }"
+                  class="tag-item"
+                  :class="{ active: isPortfolioActive && $route.query.tag === tag.name }"
+                  @click="filterByTag(tag.name)"
+                >
                   <span class="tag-name">{{ tag.name }}</span>
                   <span class="tag-count">({{ tag.count }})</span>
                 </router-link>
@@ -82,10 +96,12 @@ const isPortfolioActive = computed(() => {
 });
 
 const sortedTagsWithCount = computed(() => {
-  return allTags.value.map(tag => ({
-    name: tag,
-    count: tagCounts.value[tag] || 0
-  })).sort((a, b) => b.count - a.count); // 포스팅 개수가 많은 순으로 정렬
+  return allTags.value
+    .map((tag) => ({
+      name: tag,
+      count: tagCounts.value[tag] || 0,
+    }))
+    .sort((a, b) => b.count - a.count); // 포스팅 개수가 많은 순으로 정렬
 });
 
 const toggleSidebar = () => {
@@ -100,22 +116,21 @@ const fetchAllTags = async () => {
     // 태그별 개수 정보 가져오기
     const countResponse = await api.get('/api/v1/board/tags/count');
     tagCounts.value = countResponse.data;
-    
+
     // 기존 태그 목록 가져오기
     const tagsResponse = await api.get('/api/v1/board/tags');
     allTags.value = tagsResponse.data;
-    
+
     // 전체 포스팅 개수 계산
     totalPosts.value = Object.values(tagCounts.value).reduce((sum, count) => {
       const posts = new Set();
       // 중복 제거를 위해 실제 전체 포스팅 수를 별도로 가져와야 할 수도 있음
       return sum;
     }, 0);
-    
+
     // 전체 포스팅 개수를 위한 별도 API 호출
     const allPostsResponse = await api.get('/api/v1/board/');
     totalPosts.value = allPostsResponse.data.length;
-    
   } catch (err) {
     console.error('Failed to fetch tags:', err);
   }
@@ -173,27 +188,56 @@ onMounted(fetchAllTags);
   text-decoration: none;
 }
 
-.main-nav ul { list-style: none; padding: 0; }
-.main-nav li { margin-bottom: 25px; }
-.nav-category { font-size: 1.2rem; font-weight: 600; color: #a0a0a0; display: block; margin-bottom: 15px; transition: color 0.2s; }
-.nav-category.category-active { color: #fff; }
-.nav-link { font-size: 1.2rem; font-weight: 600; color: #a0a0a0; text-decoration: none; transition: color 0.2s; }
-.nav-link.router-link-exact-active { color: #fff; }
-.tag-list { list-style: none; padding-left: 15px; margin-top: 15px; }
+.main-nav ul {
+  list-style: none;
+  padding: 0;
+}
+.main-nav li {
+  margin-bottom: 25px;
+}
+.nav-category {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #a0a0a0;
+  display: block;
+  margin-bottom: 15px;
+  transition: color 0.2s;
+}
+.nav-category.category-active {
+  color: #fff;
+}
+.nav-link {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #a0a0a0;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.nav-link.router-link-exact-active {
+  color: #fff;
+}
+.tag-list {
+  list-style: none;
+  padding-left: 15px;
+  margin-top: 15px;
+}
 
 /* [수정] router-link는 기본적으로 a 태그이므로, 스타일이 약간 달라질 수 있습니다. */
 /* a 태그의 기본 스타일을 초기화하고 기존 스타일을 적용합니다. */
-.tag-item { 
+.tag-item {
   display: flex; /* flexbox로 변경하여 태그명과 개수를 양쪽 정렬 */
   justify-content: space-between; /* 태그명과 개수를 양쪽 끝에 정렬 */
   align-items: center;
-  color: #a0a0a0; 
-  cursor: pointer; 
-  padding: 6px 0; 
+  color: #a0a0a0;
+  cursor: pointer;
+  padding: 6px 0;
   transition: color 0.2s;
   text-decoration: none; /* 밑줄 제거 */
 }
-.tag-item:hover, .tag-item.active { color: #3d8bfd; }
+.tag-item:hover,
+.tag-item.active {
+  color: #3d8bfd;
+}
 
 .tag-name {
   flex: 1; /* 태그명이 남은 공간을 차지 */
@@ -214,18 +258,41 @@ onMounted(fetchAllTags);
 
 .main-header {
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
   align-items: center;
   padding: 30px 50px;
   border-bottom: 1px solid #2a2a2a;
 }
-.header-actions { display: flex; align-items: center; gap: 15px; }
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
 
-.btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; text-decoration: none; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
-.btn-primary { background-color: #3d8bfd; color: #fff; }
-.btn-primary:hover { background-color: #2a79e8; }
-.btn-secondary { background-color: #2a2a2a; color: #e0e0e0; }
-.btn-secondary:hover { background-color: #333; }
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+.btn-primary {
+  background-color: #3d8bfd;
+  color: #fff;
+}
+.btn-primary:hover {
+  background-color: #2a79e8;
+}
+.btn-secondary {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+}
+.btn-secondary:hover {
+  background-color: #333;
+}
 
 .content-area {
   flex: 1;
@@ -233,7 +300,8 @@ onMounted(fetchAllTags);
   overflow-y: auto;
 }
 
-.btn-hamburger, .btn-close-sidebar {
+.btn-hamburger,
+.btn-close-sidebar {
   display: none;
   background: none;
   border: none;
@@ -250,12 +318,13 @@ onMounted(fetchAllTags);
     height: 100%;
     transform: translateX(-100%);
     z-index: 1000;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
   }
   .sidebar.is-open {
     transform: translateX(0);
   }
-  .btn-hamburger, .btn-close-sidebar {
+  .btn-hamburger,
+  .btn-close-sidebar {
     display: block;
   }
   .main-header {

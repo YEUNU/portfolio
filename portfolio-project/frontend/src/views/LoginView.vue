@@ -19,11 +19,7 @@
           required
         />
         <p v-if="error" class="error-message">{{ error }}</p>
-        <BaseButton
-          type="submit"
-          :disabled="loading"
-          class="login-button"
-        >
+        <BaseButton type="submit" :disabled="loading" class="login-button">
           {{ loading ? '로그인 중...' : '로그인' }}
         </BaseButton>
       </form>
@@ -49,7 +45,7 @@ const authStore = useAuthStore();
 const handleLogin = async () => {
   loading.value = true;
   error.value = null;
-  
+
   try {
     await authStore.login({
       username: username.value,

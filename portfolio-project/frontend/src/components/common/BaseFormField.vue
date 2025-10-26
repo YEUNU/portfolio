@@ -18,7 +18,7 @@
       @input="$emit('update:modelValue', $event.target.value)"
       v-bind="$attrs"
       class="form-input"
-    >
+    />
   </div>
 </template>
 
@@ -28,20 +28,20 @@ import { computed } from 'vue';
 const props = defineProps({
   label: {
     type: String,
-    default: ''
+    default: '',
   },
   modelValue: {
     type: [String, Number],
-    default: ''
+    default: '',
   },
   type: {
     type: String,
-    default: 'text'
+    default: 'text',
   },
   rows: {
     type: Number,
-    default: 5
-  }
+    default: 5,
+  },
 });
 
 const id = computed(() => `form-field-${Math.random().toString(36).substr(2, 9)}`);

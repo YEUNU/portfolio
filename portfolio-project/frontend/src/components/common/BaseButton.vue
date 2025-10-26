@@ -1,10 +1,6 @@
 <template>
   <button
-    :class="[
-      'base-button',
-      variant,
-      { disabled: disabled }
-    ]"
+    :class="['base-button', variant, { disabled: disabled }]"
     :disabled="disabled"
     v-bind="$attrs"
   >
@@ -17,12 +13,12 @@ defineProps({
   variant: {
     type: String,
     default: 'primary',
-    validator: (value) => ['primary', 'secondary', 'danger'].includes(value)
+    validator: (value) => ['primary', 'secondary', 'danger'].includes(value),
   },
   disabled: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 });
 </script>
 

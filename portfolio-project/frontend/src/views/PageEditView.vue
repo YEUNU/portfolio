@@ -5,21 +5,46 @@
       <form @submit.prevent="handleSubmit">
         <div class="form-group">
           <label for="title">제목</label>
-          <input type="text" id="title" v-model="post.title" placeholder="제목을 입력하세요" required>
+          <input
+            type="text"
+            id="title"
+            v-model="post.title"
+            placeholder="제목을 입력하세요"
+            required
+          />
         </div>
 
         <div class="form-group">
           <label for="tags">태그</label>
-          <input type="text" id="tags" v-model="post.tags" placeholder="쉼표(,)로 구분하여 입력하세요">
+          <input
+            type="text"
+            id="tags"
+            v-model="post.tags"
+            placeholder="쉼표(,)로 구분하여 입력하세요"
+          />
         </div>
-        
+
         <div class="form-group">
           <label for="content">내용</label>
           <div class="editor-toolbar">
-              <button type="button" @click="triggerFileInput" class="btn-upload">이미지 업로드</button>
+            <button type="button" @click="triggerFileInput" class="btn-upload">
+              이미지 업로드
+            </button>
           </div>
-          <textarea id="content" ref="contentTextarea" v-model="post.content" rows="20" placeholder="내용을 입력하세요 (Markdown 지원)"></textarea>
-          <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" style="display: none;" />
+          <textarea
+            id="content"
+            ref="contentTextarea"
+            v-model="post.content"
+            rows="20"
+            placeholder="내용을 입력하세요 (Markdown 지원)"
+          ></textarea>
+          <input
+            type="file"
+            ref="fileInput"
+            @change="handleFileUpload"
+            accept="image/*"
+            style="display: none"
+          />
         </div>
 
         <button type="submit" class="btn-submit" :disabled="loading">
@@ -27,7 +52,7 @@
         </button>
         <p v-if="error" class="error-message">{{ error }}</p>
       </form>
-      
+
       <div class="preview-container">
         <h2 class="preview-title">미리보기</h2>
         <div class="markdown-preview" v-html="compiledMarkdown"></div>
@@ -97,12 +122,12 @@ const handleFileUpload = async (event) => {
     const textarea = contentTextarea.value;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    post.value.content = post.value.content.substring(0, start) + markdownImage + post.value.content.substring(end);
-    
+    post.value.content =
+      post.value.content.substring(0, start) + markdownImage + post.value.content.substring(end);
+
     await nextTick();
     textarea.selectionStart = textarea.selectionEnd = start + markdownImage.length;
     textarea.focus();
-
   } catch (err) {
     alert('이미지 업로드에 실패했습니다.');
     console.error(err);
@@ -155,7 +180,8 @@ label {
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
-input, textarea {
+input,
+textarea {
   width: 100%;
   padding: 0.8rem;
   background-color: #2a2a2a;
@@ -164,7 +190,9 @@ input, textarea {
   color: #e0e0e0;
   font-size: 1rem;
 }
-textarea { resize: vertical; }
+textarea {
+  resize: vertical;
+}
 .btn-submit {
   padding: 0.8rem 1.5rem;
   border: none;

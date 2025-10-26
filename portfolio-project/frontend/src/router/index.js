@@ -72,14 +72,14 @@ router.beforeEach(async (to, from, next) => {
   }
 
   // 이동하려는 페이지가 관리자 권한을 요구하는지 확인합니다.
-  const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin);
+  const requiresAdmin = to.matched.some((record) => record.meta.requiresAdmin);
 
   // 관리자 페이지에 권한 없이 접근하려는 경우
   if (requiresAdmin && !authStore.isAdmin) {
     // 로그인 페이지로 보내고, 로그인 후 돌아올 페이지 주소를 쿼리로 남깁니다. (UX 개선)
     next({
       name: 'Login',
-      query: { redirect: to.fullPath }
+      query: { redirect: to.fullPath },
     });
   } else {
     // 그 외의 모든 경우는 정상적으로 페이지 이동을 허용합니다.

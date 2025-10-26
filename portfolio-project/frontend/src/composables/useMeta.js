@@ -13,25 +13,25 @@ export function useMeta() {
       title.value = metaData.title;
       document.title = metaData.title;
     }
-    
+
     if (metaData.description) {
       description.value = metaData.description;
       updateMetaTag('name', 'description', metaData.description);
       updateMetaTag('property', 'og:description', metaData.description);
       updateMetaTag('name', 'twitter:description', metaData.description);
     }
-    
+
     if (metaData.keywords) {
       keywords.value = metaData.keywords;
       updateMetaTag('name', 'keywords', metaData.keywords);
     }
-    
+
     if (metaData.ogImage) {
       ogImage.value = metaData.ogImage;
       updateMetaTag('property', 'og:image', metaData.ogImage);
       updateMetaTag('name', 'twitter:image', metaData.ogImage);
     }
-    
+
     // 페이지별 canonical URL 설정
     if (metaData.canonical) {
       updateCanonicalUrl(metaData.canonical);
@@ -78,6 +78,6 @@ export function useMeta() {
     keywords,
     ogImage,
     updateMeta,
-    addStructuredData
+    addStructuredData,
   };
 }

@@ -11,17 +11,17 @@
   --color-text-dark: #757575;
   --color-error: #e57373;
   --color-success: #4caf50;
-  
+
   /* Spacing */
   --spacing-xs: 0.5rem;
   --spacing-sm: 1rem;
   --spacing-md: 1.5rem;
   --spacing-lg: 2rem;
   --spacing-xl: 3rem;
-  
+
   /* Border Radius */
   --border-radius: 8px;
-  
+
   /* Transitions */
   --transition-speed: 0.2s;
 }
@@ -71,7 +71,7 @@
   .page-layout {
     padding: var(--spacing-md);
   }
-  
+
   .page-title {
     font-size: 2rem;
   }

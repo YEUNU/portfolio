@@ -6,8 +6,8 @@ export default {
   props: {
     urls: {
       type: Array,
-      default: () => []
-    }
+      default: () => [],
+    },
   },
   setup(props) {
     onMounted(() => {
@@ -15,10 +15,10 @@ export default {
       const preloadUrls = [
         '/api/v1/board/tags', // 태그 목록
         '/api/v1/board/', // 메인 게시글 목록
-        ...props.urls
+        ...props.urls,
       ];
 
-      preloadUrls.forEach(url => {
+      preloadUrls.forEach((url) => {
         // 이미 preload된 URL인지 확인
         if (!document.querySelector(`link[href="${url}"]`)) {
           const link = document.createElement('link');
@@ -33,6 +33,6 @@ export default {
 
     // 렌더링하지 않음
     return () => null;
-  }
+  },
 };
 </script>

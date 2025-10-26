@@ -18,7 +18,7 @@ async function initializeApp() {
   // localStorage에 토큰이 있다면,
   // API 통신 헤더를 설정하고 사용자 정보를 가져와서 로그인 상태를 완벽하게 복원합니다.
   await authStore.checkAuth();
-  
+
   // 4. 로그인 상태 복원이 완료된 후에 라우터를 등록하고 앱을 마운트합니다.
   app.use(router);
   app.mount('#app');
@@ -26,4 +26,3 @@ async function initializeApp() {
 
 // 초기화 함수를 실행합니다.
 initializeApp();
-

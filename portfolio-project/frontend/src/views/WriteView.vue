@@ -19,8 +19,16 @@
           <div class="form-group">
             <label for="content">내용</label>
             <div class="editor-toolbar">
-              <button type="button" @click="triggerFileInput" class="btn-upload">이미지 업로드</button>
-              <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" hidden />
+              <button type="button" @click="triggerFileInput" class="btn-upload">
+                이미지 업로드
+              </button>
+              <input
+                type="file"
+                ref="fileInput"
+                @change="handleFileUpload"
+                accept="image/*"
+                hidden
+              />
             </div>
             <textarea
               id="content"
@@ -49,12 +57,12 @@
           <div class="markdown-preview" v-html="compiledMarkdown"></div>
         </div>
       </div>
-      
+
       <p v-if="error" class="error-message">{{ error }}</p>
-      
+
       <div class="form-actions">
         <button type="submit" class="btn-submit" :disabled="loading">
-          {{ loading ? '저장 중...' : (isEditing ? '수정하기' : '저장하기') }}
+          {{ loading ? '저장 중...' : isEditing ? '수정하기' : '저장하기' }}
         </button>
       </div>
     </form>
@@ -101,7 +109,7 @@ onMounted(async () => {
         // postId가 숫자이면 기존 ID 기반 API를 호출합니다.
         response = await api.get(`/api/v1/board/${postId}`);
       }
-      
+
       if (Array.isArray(response.data.tags)) {
         response.data.tags = response.data.tags.join(', ');
       }
@@ -137,12 +145,12 @@ const handleFileUpload = async (event) => {
     const textarea = contentTextarea.value;
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
-    post.value.content = post.value.content.substring(0, start) + markdownImage + post.value.content.substring(end);
-    
+    post.value.content =
+      post.value.content.substring(0, start) + markdownImage + post.value.content.substring(end);
+
     await nextTick();
     textarea.selectionStart = textarea.selectionEnd = start + markdownImage.length;
     textarea.focus();
-
   } catch (err) {
     alert('이미지 업로드에 실패했습니다.');
     console.error(err);
@@ -212,7 +220,8 @@ label {
   margin-bottom: 0.5rem;
   font-weight: 500;
 }
-input, textarea {
+input,
+textarea {
   width: 100%;
   padding: 0.8rem;
   background-color: var(--color-surface-secondary);
@@ -221,8 +230,8 @@ input, textarea {
   color: var(--color-text);
   font-size: 1rem;
 }
-textarea { 
-  resize: vertical; 
+textarea {
+  resize: vertical;
   font-family: inherit;
 }
 .form-actions {

@@ -11,9 +11,7 @@
       <div class="page-header">
         <h1 class="page-title">{{ page.title }}</h1>
         <!-- 관리자일 경우에만 수정 버튼 표시 -->
-        <button v-if="authStore.isAdmin" @click="goToEditPage" class="btn-edit">
-          수정하기
-        </button>
+        <button v-if="authStore.isAdmin" @click="goToEditPage" class="btn-edit">수정하기</button>
       </div>
       <!-- 중앙 설정된 marked를 통해 렌더링된 콘텐츠 -->
       <div class="markdown-content" v-html="compiledMarkdown"></div>
@@ -161,4 +159,3 @@ watch(
   font-weight: bold;
 }
 </style>
-
