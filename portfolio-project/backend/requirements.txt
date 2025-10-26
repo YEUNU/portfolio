@@ -1,18 +1,9 @@
-# Pinned dependency versions for reproducible installs
-# These versions are conservative recommendations. If you prefer a lockfile
-# workflow, consider using pip-tools (pip-compile) or poetry.
-
-fastapi[all]==0.95.2
-uvicorn[standard]==0.22.0
-sqlalchemy==1.4.49
-psycopg2-binary==2.9.6
-pydantic-settings==0.1.1
-passlib[bcrypt]==1.7.4
-python-jose[cryptography]==3.3.0
-python-multipart==0.0.6
-argon2-cffi==21.3.0
-alembic==1.11.1
-
-# Dev / tooling (optional)
-# pytest
-# pytest-asyncio
+fastapi[all]
+sqlalchemy
+psycopg2-binary
+pydantic-settings
+passlib[bcrypt]
+python-jose[cryptography]
+python-multipart
+argon2-cffi
+alembic
