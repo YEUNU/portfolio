@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 2  # 2시간 (기본값)
     ADMIN_SESSION_TIMEOUT_MINUTES: int = 30  # 관리자 세션 타임아웃 (30분)
+    # 개발 편의용: 애플리케이션 시작 시 DB를 자동으로 생성/초기화할지 여부
+    # 프로덕션에서는 반드시 false로 두고 Alembic 마이그레이션을 사용하세요.
+    INIT_DB: bool = False
 
     # PostgreSQL Database
     POSTGRES_SERVER: str

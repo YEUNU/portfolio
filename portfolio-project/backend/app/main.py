@@ -29,9 +29,10 @@ def on_startup():
     logger.info("애플리케이션 시작 이벤트를 실행합니다...")
     try:
         db = SessionLocal()
-        # 애플리케이션 시작 시 데이터베이스 테이블 생성
-        base.Base.metadata.create_all(bind=engine)
-        # 초기 데이터 확인 및 생성
+        # 애플리케이션 시작 시 데이터베이스 테이블 생성은 개발용 옵션으로 제한
+        if settings.INIT_DB:
+            base.Base.metadata.create_all(bind=engine)
+        # 초기 데이터 확인 및 생성 (초기 관리자 계정 등)
         init_db(db)
     finally:
         db.close()
