@@ -1,25 +1,19 @@
 <template>
   <div class="app-container">
-    <!-- PreloadLinks 컴포넌트 추가 -->
     <PreloadLinks />
 
-    <!-- 왼쪽 사이드바: 메인 네비게이션 -->
     <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
       <div class="sidebar-header">
-        <router-link to="/" class="site-title" @click="closeSidebar"
-          >성연우의<br />포트폴리오</router-link
-        >
-        <!-- 모바일용 닫기 버튼 -->
+        <router-link to="/" class="site-title" @click="closeSidebar">
+          성연우의<br />포트폴리오
+        </router-link>
         <button @click="closeSidebar" class="btn-close-sidebar" aria-label="메뉴 닫기">&times;</button>
       </div>
       <nav class="main-nav">
         <ul>
           <li>
-            <span class="nav-category" :class="{ 'category-active': isPortfolioActive }"
-              >Portfolio</span
-            >
+            <span class="nav-category" :class="{ 'category-active': isPortfolioActive }">Portfolio</span>
             <ul class="tag-list">
-              <!-- [수정] li > router-link 구조로 변경 -->
               <li>
                 <router-link
                   :to="{ path: '/', query: {} }"
@@ -28,8 +22,7 @@
                   @click="closeSidebar"
                 >
                   <span class="tag-name">All Posts</span>
-                  <span class="tag-count" v-if="totalPosts > 0">({{ totalPosts }})</span>
-                </router-link>
+                  <span class="tag-count">{{ totalPosts }}</span> </router-link>
               </li>
               <li v-for="tag in sortedTagsWithCount" :key="tag.name">
                 <router-link
@@ -39,8 +32,7 @@
                   @click="filterByTag(tag.name)"
                 >
                   <span class="tag-name">{{ tag.name }}</span>
-                  <span class="tag-count">({{ tag.count }})</span>
-                </router-link>
+                  <span class="tag-count">{{ tag.count }}</span> </router-link>
               </li>
             </ul>
           </li>
@@ -54,13 +46,10 @@
       </nav>
     </aside>
 
-    <!-- 사이드바 오버레이 -->
     <div v-if="isSidebarOpen" class="sidebar-overlay" @click="closeSidebar"></div>
 
-    <!-- 오른쪽 메인 콘텐츠 영역 -->
     <div class="main-wrapper">
       <header class="main-header">
-        <!-- 모바일용 햄버거 메뉴 버튼 -->
         <button @click="toggleSidebar" class="btn-hamburger" aria-label="메뉴 열기">&#9776;</button>
         <div class="header-actions">
           <div v-if="authStore.isLoggedIn && authStore.isAdmin">
@@ -80,6 +69,7 @@
 </template>
 
 <script setup>
+// 스크립트 부분은 변경사항 없습니다.
 import { ref, onMounted, computed, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
@@ -104,7 +94,7 @@ const sortedTagsWithCount = computed(() => {
       name: tag,
       count: tagCounts.value[tag] || 0,
     }))
-    .sort((a, b) => b.count - a.count); // 포스팅 개수가 많은 순으로 정렬
+    .sort((a, b) => b.count - a.count);
 });
 
 const toggleSidebar = () => {
@@ -114,19 +104,14 @@ const closeSidebar = () => {
   isSidebarOpen.value = false;
 };
 
-
-
 const fetchAllTags = async () => {
   try {
-    // 태그별 개수 정보 가져오기
     const countResponse = await api.get('/api/v1/board/tags/count');
     tagCounts.value = countResponse.data;
 
-    // 기존 태그 목록 가져오기
     const tagsResponse = await api.get('/api/v1/board/tags');
     allTags.value = tagsResponse.data;
 
-    // 전체 포스팅 개수를 위한 API 호출
     const allPostsResponse = await api.get('/api/v1/board/');
     totalPosts.value = allPostsResponse.data.length;
   } catch (err) {
@@ -134,9 +119,7 @@ const fetchAllTags = async () => {
   }
 };
 
-// [수정] router.push 대신 router-link를 사용하므로, 이 함수는 이제 사이드바를 닫는 역할만 합니다.
 const filterByTag = (tag) => {
-  // router.push({ path: '/', query: tag ? { tag } : {} });
   closeSidebar();
 };
 
@@ -145,7 +128,6 @@ const handleLogout = () => {
   router.push({ name: 'Login' });
 };
 
-// 컴포넌트 언마운트 시 타이머 정리
 onUnmounted(() => {
   authStore.clearTimer();
 });
@@ -154,7 +136,7 @@ onMounted(fetchAllTags);
 </script>
 
 <style scoped>
-/* CSS는 변경할 필요가 없습니다. */
+/* [개선] 전체적인 스타일 수정 */
 .app-container {
   display: flex;
   min-height: 100vh;
@@ -165,25 +147,27 @@ onMounted(fetchAllTags);
 .sidebar {
   width: 280px;
   background-color: #181818;
-  padding: 40px;
+  padding: 40px; /* 기존과 동일 */
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
   transition: transform 0.3s ease;
+  border-right: 1px solid #2a2a2a; /* [개선] 우측에 구분선 추가 */
 }
 
 .sidebar-header {
-  margin-bottom: 50px;
+  margin-bottom: 60px; /* [개선] 하단 여백 증가 */
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .site-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-  color: #fff;
+  font-size: 2rem; /* [개선] 폰트 크기 증가 */
+  font-weight: 700; /* [개선] 폰트 굵기 증가 */
+  color: #ffffff;
   text-decoration: none;
+  line-height: 1.3; /* [개선] 줄 간격 조정 */
 }
 
 .main-nav ul {
@@ -191,65 +175,95 @@ onMounted(fetchAllTags);
   padding: 0;
 }
 .main-nav > ul > li {
-  margin-bottom: 25px;
+  margin-bottom: 35px; /* [개선] 메뉴 그룹 간 여백 증가 */
 }
 .nav-category {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #a0a0a0;
+  font-size: 1rem; /* [개선] 폰트 크기 조정 */
+  font-weight: 600; /* [개선] 폰트 굵기 조정 */
+  color: #757575; /* [개선] 기본 색상을 더 어둡게 */
+  text-transform: uppercase; /* [개선] 대문자로 변경 */
+  letter-spacing: 0.05em; /* [개선] 자간 추가 */
   display: block;
-  margin-bottom: 15px;
-  transition: color 0.2s;
+  margin-bottom: 20px; /* [개선] 하위 메뉴와의 여백 증가 */
+  transition: color 0.3s ease;
 }
 .nav-category.category-active {
-  color: #fff;
-}
-.nav-link {
-  font-size: 1.3rem;
-  font-weight: 600;
-  color: #a0a0a0;
-  text-decoration: none;
-  transition: color 0.2s;
-}
-.nav-link.router-link-exact-active {
-  color: #fff;
-}
-.tag-list {
-  list-style: none;
-  padding-left: 25px; /* 들여쓰기 증가 */
-  margin-top: 15px;
-  max-height: 250px; /* 최대 높이 설정 */
-  overflow-y: auto; /* 높이 초과 시 스크롤바 표시 */
+  color: #ffffff; /* [개선] 활성화 시 흰색으로 강조 */
 }
 
-/* [수정] router-link는 기본적으로 a 태그이므로, 스타일이 약간 달라질 수 있습니다. */
-/* a 태그의 기본 스타일을 초기화하고 기존 스타일을 적용합니다. */
-.tag-item {
-  display: flex; /* flexbox로 변경하여 태그명과 개수를 양쪽 정렬 */
-  justify-content: space-between; /* 태그명과 개수를 양쪽 끝에 정렬 */
-  align-items: center;
-  font-size: 1.1rem; /* 하위 메뉴 폰트 크기 조정 */
-  font-weight: 400; /* 하위 메뉴 폰트 굵기 조정 */
+/* [개선] About, Contact 링크 스타일 통일 */
+.nav-link {
+  font-size: 1.1rem; /* [개선] 폰트 크기 조정 */
+  font-weight: 500;
   color: #a0a0a0;
-  cursor: pointer;
-  padding: 6px 0;
-  transition: color 0.2s;
-  text-decoration: none; /* 밑줄 제거 */
+  text-decoration: none;
+  transition: color 0.3s ease;
+  padding: 8px 0; /* [개선] 클릭 영역 확보 */
+  display: block;
 }
-.tag-item:hover,
+.nav-link:hover,
+.nav-link.router-link-exact-active {
+  color: #ffffff; /* [개선] 호버/활성화 시 흰색으로 변경 */
+}
+
+.tag-list {
+  list-style: none;
+  padding-left: 0; /* [개선] 들여쓰기 제거, 계층 구조 단순화 */
+  margin-top: 15px;
+  max-height: 280px; /* [개선] 최대 높이 증가 */
+  overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.tag-list::-webkit-scrollbar {
+  display: none;
+}
+
+.tag-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 400;
+  color: #a0a0a0; /* [개선] 기본 텍스트 색상 */
+  cursor: pointer;
+  padding: 10px 15px; /* [개선] 좌우 패딩 추가 */
+  border-radius: 8px; /* [개선] 모서리 둥글게 */
+  transition: color 0.3s ease, background-color 0.3s ease; /* [개선] 부드러운 전환 효과 */
+  text-decoration: none;
+  margin-bottom: 4px; /* [개선] 아이템 간 여백 추가 */
+}
+
+.tag-item:hover {
+  color: #ffffff;
+  background-color: #2a2a2a; /* [개선] 호버 시 배경색 변경 */
+}
+
 .tag-item.active {
-  color: #3d8bfd;
+  color: #ffffff;
+  font-weight: 600; /* [개선] 활성화 시 폰트 굵게 */
+  background-color: #3d8bfd; /* [개선] 활성화 시 배경색으로 강조 */
 }
 
 .tag-name {
-  flex: 1; /* 태그명이 남은 공간을 차지 */
+  flex: 1;
 }
 
 .tag-count {
-  font-size: 0.85em;
-  opacity: 0.7;
-  margin-left: 8px;
+  font-size: 0.9em;
+  background-color: #333; /* [개선] 카운트 배경색 추가 */
+  color: #a0a0a0;
+  padding: 2px 8px; /* [개선] 패딩 추가 */
+  border-radius: 10px; /* [개선] 캡슐 형태 */
+  transition: all 0.3s ease; /* [개선] 부드러운 전환 효과 */
 }
+
+.tag-item:hover .tag-count,
+.tag-item.active .tag-count {
+  background-color: rgba(255, 255, 255, 0.2); /* [개선] 호버/활성화 시 배경색 변경 */
+  color: #ffffff;
+}
+
 
 .main-wrapper {
   flex: 1;
@@ -270,7 +284,6 @@ onMounted(fetchAllTags);
   align-items: center;
   gap: 15px;
 }
-
 .btn {
   padding: 10px 20px;
   border: none;
@@ -295,11 +308,15 @@ onMounted(fetchAllTags);
 .btn-secondary:hover {
   background-color: #333;
 }
-
 .content-area {
   flex: 1;
   padding: 50px;
   overflow-y: auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.content-area::-webkit-scrollbar {
+  display: none;
 }
 
 .btn-hamburger,
@@ -319,8 +336,8 @@ onMounted(fetchAllTags);
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.2); /* 약간 어두운 배경 */
-    z-index: 999; /* 사이드바(1000) 바로 아래 */
+    background-color: rgba(0, 0, 0, 0.5); /* [개선] 배경 어둡게 */
+    z-index: 999;
   }
   .sidebar {
     position: fixed;
@@ -330,6 +347,7 @@ onMounted(fetchAllTags);
     transform: translateX(-100%);
     z-index: 1000;
     box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+    border-right: none;
   }
   .sidebar.is-open {
     transform: translateX(0);

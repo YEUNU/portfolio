@@ -2,24 +2,8 @@ module.exports = {
   root: true,
   env: {
     node: true,
-    browser: true
-  },
-  extends: [
-    'plugin:vue/vue3-essential',
-    'eslint:recommended'
-  ],
-  parserOptions: {
-    ecmaVersion: 2020
-  },
-  rules: {
-    // add or override rules here
-  }
-}
-module.exports = {
-  root: true,
-  env: {
-    node: true,
-    'vue/setup-compiler-macros': true, 
+    browser: true, // browser 환경도 명시해주는 것이 좋습니다.
+    'vue/setup-compiler-macros': true, // <script setup>을 위한 설정
   },
   extends: [
     'plugin:vue/vue3-essential',
@@ -30,6 +14,7 @@ module.exports = {
     parser: '@babel/eslint-parser',
     // Babel 설정 파일이 없어도 파서가 동작하도록 설정
     requireConfigFile: false, 
+    ecmaVersion: 2020 // ecmaVersion은 여기에 위치해야 합니다.
   },
   rules: {
     'no-console': process.env.NODE_ENV === 'production' ? 'warn' : 'off',
@@ -38,4 +23,3 @@ module.exports = {
     'no-unused-vars': 'warn', 
   },
 };
-
