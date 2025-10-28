@@ -10,7 +10,7 @@
           >성연우의<br />포트폴리오</router-link
         >
         <!-- 모바일용 닫기 버튼 -->
-        <button @click="closeSidebar" class="btn-close-sidebar">&times;</button>
+        <button @click="closeSidebar" class="btn-close-sidebar" aria-label="메뉴 닫기">&times;</button>
       </div>
       <nav class="main-nav">
         <ul>
@@ -54,11 +54,14 @@
       </nav>
     </aside>
 
+    <!-- 사이드바 오버레이 -->
+    <div v-if="isSidebarOpen" class="sidebar-overlay" @click="closeSidebar"></div>
+
     <!-- 오른쪽 메인 콘텐츠 영역 -->
     <div class="main-wrapper">
       <header class="main-header">
         <!-- 모바일용 햄버거 메뉴 버튼 -->
-        <button @click="toggleSidebar" class="btn-hamburger">&#9776;</button>
+        <button @click="toggleSidebar" class="btn-hamburger" aria-label="메뉴 열기">&#9776;</button>
         <div class="header-actions">
           <div v-if="authStore.isLoggedIn && authStore.isAdmin">
             <router-link to="/write" class="btn btn-primary">글쓰기</router-link>
@@ -111,6 +114,8 @@ const closeSidebar = () => {
   isSidebarOpen.value = false;
 };
 
+
+
 const fetchAllTags = async () => {
   try {
     // 태그별 개수 정보 가져오기
@@ -121,14 +126,7 @@ const fetchAllTags = async () => {
     const tagsResponse = await api.get('/api/v1/board/tags');
     allTags.value = tagsResponse.data;
 
-    // 전체 포스팅 개수 계산
-    totalPosts.value = Object.values(tagCounts.value).reduce((sum, count) => {
-      const posts = new Set();
-      // 중복 제거를 위해 실제 전체 포스팅 수를 별도로 가져와야 할 수도 있음
-      return sum;
-    }, 0);
-
-    // 전체 포스팅 개수를 위한 별도 API 호출
+    // 전체 포스팅 개수를 위한 API 호출
     const allPostsResponse = await api.get('/api/v1/board/');
     totalPosts.value = allPostsResponse.data.length;
   } catch (err) {
@@ -192,11 +190,11 @@ onMounted(fetchAllTags);
   list-style: none;
   padding: 0;
 }
-.main-nav li {
+.main-nav > ul > li {
   margin-bottom: 25px;
 }
 .nav-category {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: #a0a0a0;
   display: block;
@@ -207,7 +205,7 @@ onMounted(fetchAllTags);
   color: #fff;
 }
 .nav-link {
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 600;
   color: #a0a0a0;
   text-decoration: none;
@@ -218,8 +216,10 @@ onMounted(fetchAllTags);
 }
 .tag-list {
   list-style: none;
-  padding-left: 15px;
+  padding-left: 25px; /* 들여쓰기 증가 */
   margin-top: 15px;
+  max-height: 250px; /* 최대 높이 설정 */
+  overflow-y: auto; /* 높이 초과 시 스크롤바 표시 */
 }
 
 /* [수정] router-link는 기본적으로 a 태그이므로, 스타일이 약간 달라질 수 있습니다. */
@@ -228,6 +228,8 @@ onMounted(fetchAllTags);
   display: flex; /* flexbox로 변경하여 태그명과 개수를 양쪽 정렬 */
   justify-content: space-between; /* 태그명과 개수를 양쪽 끝에 정렬 */
   align-items: center;
+  font-size: 1.1rem; /* 하위 메뉴 폰트 크기 조정 */
+  font-weight: 400; /* 하위 메뉴 폰트 굵기 조정 */
   color: #a0a0a0;
   cursor: pointer;
   padding: 6px 0;
@@ -311,6 +313,15 @@ onMounted(fetchAllTags);
 }
 
 @media (max-width: 1024px) {
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.2); /* 약간 어두운 배경 */
+    z-index: 999; /* 사이드바(1000) 바로 아래 */
+  }
   .sidebar {
     position: fixed;
     top: 0;
