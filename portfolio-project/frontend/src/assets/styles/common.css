@@ -1,4 +1,9 @@
-/* Theme Colors */
+/* Tailwind CSS Base Styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme Colors (CSS Variables for backward compatibility) */
 :root {
   --color-primary: #3d8bfd;
   --color-primary-hover: #2a79e8;

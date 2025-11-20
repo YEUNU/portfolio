@@ -28,6 +28,23 @@ class CRUDBoard(CRUDBase[Board, BoardCreate, BoardUpdate]):
         filters = [self.model.tags.ilike(f"%{tag}%") for tag in tags]
         return db.query(self.model).filter(or_(*filters)).filter(self.model.slug.is_(None)).offset(skip).limit(limit).all()
 
+    def get_multi_by_search(self, db: Session, *, search: str, skip: int = 0, limit: int = 100) -> List[Board]:
+        """제목 또는 내용으로 검색하여 게시글을 조회합니다. (고정 페이지 제외)"""
+        search_filter = or_(
+            self.model.title.ilike(f"%{search}%"),
+            self.model.content.ilike(f"%{search}%")
+        )
+        return db.query(self.model).filter(search_filter).filter(self.model.slug.is_(None)).offset(skip).limit(limit).all()
+
+    def get_multi_by_tags_and_search(self, db: Session, *, tags: List[str], search: str, skip: int = 0, limit: int = 100) -> List[Board]:
+        """태그와 검색어를 함께 적용하여 게시글을 조회합니다. (고정 페이지 제외)"""
+        tag_filters = [self.model.tags.ilike(f"%{tag}%") for tag in tags]
+        search_filter = or_(
+            self.model.title.ilike(f"%{search}%"),
+            self.model.content.ilike(f"%{search}%")
+        )
+        return db.query(self.model).filter(or_(*tag_filters)).filter(search_filter).filter(self.model.slug.is_(None)).offset(skip).limit(limit).all()
+
     def get_all_tags(self, db: Session) -> List[str]:
         # 고정 페이지를 제외하고 태그를 수집합니다.
         all_tags_tuples = db.query(self.model.tags).filter(

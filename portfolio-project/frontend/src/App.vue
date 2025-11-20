@@ -1,127 +1,104 @@
 <template>
-  <div class="app-container">
+  <div class="flex min-h-screen bg-surface dark:bg-surface-dark transition-colors duration-300">
     <PreloadLinks />
 
-    <aside class="sidebar" :class="{ 'is-open': isSidebarOpen }">
-      <div class="sidebar-header">
-        <router-link to="/" class="site-title" @click="closeSidebar">
-          성연우의<br />포트폴리오
-        </router-link>
-        <button @click="closeSidebar" class="btn-close-sidebar" aria-label="메뉴 닫기">&times;</button>
-      </div>
-      <nav class="main-nav">
-        <ul>
-          <li>
-            <span class="nav-category" :class="{ 'category-active': isPortfolioActive }">Portfolio</span>
-            <ul class="tag-list">
-              <li>
-                <router-link
-                  :to="{ path: '/', query: {} }"
-                  class="tag-item"
-                  :class="{ active: isPortfolioActive && !$route.query.tag }"
-                  @click="closeSidebar"
-                >
-                  <span class="tag-name">All Posts</span>
-                  <span class="tag-count">{{ totalPosts }}</span> </router-link>
-              </li>
-              <li v-for="tag in sortedTagsWithCount" :key="tag.name">
-                <router-link
-                  :to="{ path: '/', query: { tag: tag.name } }"
-                  class="tag-item"
-                  :class="{ active: isPortfolioActive && $route.query.tag === tag.name }"
-                  @click="filterByTag(tag.name)"
-                >
-                  <span class="tag-name">{{ tag.name }}</span>
-                  <span class="tag-count">{{ tag.count }}</span> </router-link>
-              </li>
-            </ul>
-          </li>
-          <li>
-            <router-link to="/about" class="nav-link" @click="closeSidebar">About</router-link>
-          </li>
-          <li>
-            <router-link to="/contact" class="nav-link" @click="closeSidebar">Contact</router-link>
-          </li>
-        </ul>
-      </nav>
-    </aside>
+    <!-- Navigation Rail (Desktop Only) -->
+    <NavigationRail />
 
-    <div v-if="isSidebarOpen" class="sidebar-overlay" @click="closeSidebar"></div>
+    <!-- Main Container -->
+    <div class="flex flex-col flex-1 lg:ml-20">
+      <!-- Header -->
+      <header class="sticky top-0 z-30 bg-surface/95 dark:bg-surface-dark/95 backdrop-blur-md border-b border-outline/20 dark:border-outline-dark/20 shadow-md3-2 transition-colors duration-300">
+        <div class="flex items-center justify-between px-4 md:px-6 py-3 md:py-4">
+          <router-link 
+            to="/" 
+            class="text-lg md:text-xl font-bold text-primary dark:text-primary-dark transition-all duration-300 truncate"
+          >
+            <span class="hidden sm:inline">성연우의 포트폴리오</span>
+            <span class="sm:hidden">포트폴리오</span>
+          </router-link>
+        
+        <div class="flex items-center gap-1 md:gap-3">
+          <!-- Global Search (Hidden on very small screens) -->
+          <div class="hidden min-[400px]:block">
+            <GlobalSearch />
+          </div>
 
-    <div class="main-wrapper">
-      <header class="main-header">
-        <button @click="toggleSidebar" class="btn-hamburger" aria-label="메뉴 열기">&#9776;</button>
-        <div class="header-actions">
-          <div v-if="authStore.isLoggedIn && authStore.isAdmin">
-            <router-link to="/write" class="btn btn-primary">글쓰기</router-link>
-            <button @click="handleLogout" class="btn btn-secondary">로그아웃</button>
+          <!-- Dark Mode Toggle -->
+          <button 
+            @click="themeStore.toggleTheme()" 
+            class="p-2 rounded-md3-full text-surface-on-variant dark:text-surface-dark-on hover:text-surface-on dark:hover:text-surface-dark-on hover:bg-surface-variant dark:hover:bg-surface-dark-variant transition-all shadow-md3-1"
+            :aria-label="themeStore.isDark ? '라이트 모드로 전환' : '다크 모드로 전환'"
+          >
+            <svg v-if="themeStore.isDark" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+          </button>
+
+          <div v-if="authStore.isLoggedIn && authStore.isAdmin" class="flex items-center gap-1 md:gap-2">
+            <!-- Write Button - Icon only on mobile -->
+            <router-link 
+              to="/write" 
+              class="inline-flex items-center gap-2 px-3 md:px-6 py-2 md:py-2.5 bg-primary hover:bg-primary-dark dark:bg-primary-dark dark:hover:bg-primary text-primary-on text-sm font-medium rounded-md3-full shadow-md3-2 hover:shadow-md3-3 transition-all duration-200"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              <span class="hidden sm:inline">글쓰기</span>
+            </router-link>
+            <!-- Logout Button - Icon only on mobile -->
+            <button 
+              @click="handleLogout" 
+              class="px-3 md:px-4 py-2 bg-surface-variant dark:bg-surface-dark-variant hover:bg-outline/20 dark:hover:bg-outline-dark/20 text-surface-on dark:text-surface-dark-on text-sm font-medium rounded-md3-full transition-all duration-200"
+            >
+              <span class="hidden sm:inline">로그아웃</span>
+              <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
           </div>
           <div v-else>
-            <router-link to="/login" class="btn btn-secondary">로그인</router-link>
+            <router-link 
+              to="/login" 
+              class="px-3 md:px-4 py-2 bg-surface-variant dark:bg-surface-dark-variant hover:bg-outline/20 dark:hover:bg-outline-dark/20 text-surface-on dark:text-surface-dark-on text-sm font-medium rounded-md3-full transition-all duration-200"
+            >
+              <span class="hidden sm:inline">로그인</span>
+              <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+            </router-link>
+          </div>
           </div>
         </div>
       </header>
-      <main class="content-area">
+
+      <!-- Main Content -->
+      <main class="flex-1 overflow-y-auto p-6 lg:p-10 pb-24 lg:pb-10 bg-surface dark:bg-surface-dark transition-colors duration-300">
         <router-view />
       </main>
+
+      <!-- MD3 Docked Toolbar (Mobile Only) -->
+      <DockedToolbar />
     </div>
   </div>
 </template>
 
 <script setup>
-// 스크립트 부분은 변경사항 없습니다.
-import { ref, onMounted, computed, onUnmounted } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
-import api from '@/services/api';
+import { onUnmounted } from 'vue';
+import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
+import { useThemeStore } from '@/store/theme';
 import PreloadLinks from '@/components/common/PreloadLinks.vue';
+import NavigationRail from '@/components/common/NavigationRail.vue';
+import DockedToolbar from '@/components/common/DockedToolbar.vue';
+import GlobalSearch from '@/components/common/GlobalSearch.vue';
 
 const router = useRouter();
-const route = useRoute();
 const authStore = useAuthStore();
-const allTags = ref([]);
-const tagCounts = ref({});
-const totalPosts = ref(0);
-const isSidebarOpen = ref(false);
-
-const isPortfolioActive = computed(() => {
-  return route.name === 'Board' || route.name === 'PostDetail';
-});
-
-const sortedTagsWithCount = computed(() => {
-  return allTags.value
-    .map((tag) => ({
-      name: tag,
-      count: tagCounts.value[tag] || 0,
-    }))
-    .sort((a, b) => b.count - a.count);
-});
-
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value;
-};
-const closeSidebar = () => {
-  isSidebarOpen.value = false;
-};
-
-const fetchAllTags = async () => {
-  try {
-    const countResponse = await api.get('/api/v1/board/tags/count');
-    tagCounts.value = countResponse.data;
-
-    const tagsResponse = await api.get('/api/v1/board/tags');
-    allTags.value = tagsResponse.data;
-
-    const allPostsResponse = await api.get('/api/v1/board/');
-    totalPosts.value = allPostsResponse.data.length;
-  } catch (err) {
-    console.error('Failed to fetch tags:', err);
-  }
-};
-
-const filterByTag = (tag) => {
-  closeSidebar();
-};
+const themeStore = useThemeStore();
 
 const handleLogout = () => {
   authStore.logout();
@@ -131,237 +108,4 @@ const handleLogout = () => {
 onUnmounted(() => {
   authStore.clearTimer();
 });
-
-onMounted(fetchAllTags);
 </script>
-
-<style scoped>
-/* [개선] 전체적인 스타일 수정 */
-.app-container {
-  display: flex;
-  min-height: 100vh;
-  background-color: #121212;
-  color: #e0e0e0;
-}
-
-.sidebar {
-  width: 280px;
-  background-color: #181818;
-  padding: 40px; /* 기존과 동일 */
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  transition: transform 0.3s ease;
-  border-right: 1px solid #2a2a2a; /* [개선] 우측에 구분선 추가 */
-}
-
-.sidebar-header {
-  margin-bottom: 60px; /* [개선] 하단 여백 증가 */
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.site-title {
-  font-size: 2rem; /* [개선] 폰트 크기 증가 */
-  font-weight: 700; /* [개선] 폰트 굵기 증가 */
-  color: #ffffff;
-  text-decoration: none;
-  line-height: 1.3; /* [개선] 줄 간격 조정 */
-}
-
-.main-nav ul {
-  list-style: none;
-  padding: 0;
-}
-.main-nav > ul > li {
-  margin-bottom: 35px; /* [개선] 메뉴 그룹 간 여백 증가 */
-}
-.nav-category {
-  font-size: 1rem; /* [개선] 폰트 크기 조정 */
-  font-weight: 600; /* [개선] 폰트 굵기 조정 */
-  color: #757575; /* [개선] 기본 색상을 더 어둡게 */
-  text-transform: uppercase; /* [개선] 대문자로 변경 */
-  letter-spacing: 0.05em; /* [개선] 자간 추가 */
-  display: block;
-  margin-bottom: 20px; /* [개선] 하위 메뉴와의 여백 증가 */
-  transition: color 0.3s ease;
-}
-.nav-category.category-active {
-  color: #ffffff; /* [개선] 활성화 시 흰색으로 강조 */
-}
-
-/* [개선] About, Contact 링크 스타일 통일 */
-.nav-link {
-  font-size: 1.1rem; /* [개선] 폰트 크기 조정 */
-  font-weight: 500;
-  color: #a0a0a0;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  padding: 8px 0; /* [개선] 클릭 영역 확보 */
-  display: block;
-}
-.nav-link:hover,
-.nav-link.router-link-exact-active {
-  color: #ffffff; /* [개선] 호버/활성화 시 흰색으로 변경 */
-}
-
-.tag-list {
-  list-style: none;
-  padding-left: 0; /* [개선] 들여쓰기 제거, 계층 구조 단순화 */
-  margin-top: 15px;
-  max-height: 280px; /* [개선] 최대 높이 증가 */
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.tag-list::-webkit-scrollbar {
-  display: none;
-}
-
-.tag-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 1rem;
-  font-weight: 400;
-  color: #a0a0a0; /* [개선] 기본 텍스트 색상 */
-  cursor: pointer;
-  padding: 10px 15px; /* [개선] 좌우 패딩 추가 */
-  border-radius: 8px; /* [개선] 모서리 둥글게 */
-  transition: color 0.3s ease, background-color 0.3s ease; /* [개선] 부드러운 전환 효과 */
-  text-decoration: none;
-  margin-bottom: 4px; /* [개선] 아이템 간 여백 추가 */
-}
-
-.tag-item:hover {
-  color: #ffffff;
-  background-color: #2a2a2a; /* [개선] 호버 시 배경색 변경 */
-}
-
-.tag-item.active {
-  color: #ffffff;
-  font-weight: 600; /* [개선] 활성화 시 폰트 굵게 */
-  background-color: #3d8bfd; /* [개선] 활성화 시 배경색으로 강조 */
-}
-
-.tag-name {
-  flex: 1;
-}
-
-.tag-count {
-  font-size: 0.9em;
-  background-color: #333; /* [개선] 카운트 배경색 추가 */
-  color: #a0a0a0;
-  padding: 2px 8px; /* [개선] 패딩 추가 */
-  border-radius: 10px; /* [개선] 캡슐 형태 */
-  transition: all 0.3s ease; /* [개선] 부드러운 전환 효과 */
-}
-
-.tag-item:hover .tag-count,
-.tag-item.active .tag-count {
-  background-color: rgba(255, 255, 255, 0.2); /* [개선] 호버/활성화 시 배경색 변경 */
-  color: #ffffff;
-}
-
-
-.main-wrapper {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.main-header {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 30px 50px;
-  border-bottom: 1px solid #2a2a2a;
-}
-.header-actions {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: background-color 0.2s, color 0.2s;
-}
-.btn-primary {
-  background-color: #3d8bfd;
-  color: #fff;
-}
-.btn-primary:hover {
-  background-color: #2a79e8;
-}
-.btn-secondary {
-  background-color: #2a2a2a;
-  color: #e0e0e0;
-}
-.btn-secondary:hover {
-  background-color: #333;
-}
-.content-area {
-  flex: 1;
-  padding: 50px;
-  overflow-y: auto;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-.content-area::-webkit-scrollbar {
-  display: none;
-}
-
-.btn-hamburger,
-.btn-close-sidebar {
-  display: none;
-  background: none;
-  border: none;
-  color: #fff;
-  font-size: 2rem;
-  cursor: pointer;
-}
-
-@media (max-width: 1024px) {
-  .sidebar-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5); /* [개선] 배경 어둡게 */
-    z-index: 999;
-  }
-  .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    transform: translateX(-100%);
-    z-index: 1000;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
-    border-right: none;
-  }
-  .sidebar.is-open {
-    transform: translateX(0);
-  }
-  .btn-hamburger,
-  .btn-close-sidebar {
-    display: block;
-  }
-  .main-header {
-    justify-content: space-between;
-    padding: 20px;
-  }
-  .content-area {
-    padding: 20px;
-  }
-}
-</style>

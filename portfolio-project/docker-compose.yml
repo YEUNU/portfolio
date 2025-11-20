@@ -17,7 +17,7 @@ services:
     depends_on:
       - frontend
       - backend
-    restart: unless-stopped
+    restart: always
     logging:
       options:
         max-size: "10m"
@@ -40,7 +40,7 @@ services:
     # 외부에서는 Nginx를 통해서만 접근하므로 포트를 노출할 필요 없음
     # ports:
     #   - "8000:8000"
-    restart: unless-stopped
+    restart: always
     logging:
       options:
         max-size: "10m"
@@ -59,7 +59,7 @@ services:
     #   - "3000:80"
     depends_on:
       - backend
-    restart: unless-stopped
+    restart: always
     logging:
       options:
         max-size: "10m"
@@ -76,7 +76,7 @@ services:
     # 로컬에서 DB 직접 접근이 필요할 경우에만 주석 해제하여 사용
     # ports:
     #   - "5432:5432"
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s

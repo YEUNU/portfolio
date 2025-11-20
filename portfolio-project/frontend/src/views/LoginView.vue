@@ -65,42 +65,42 @@ const handleLogin = async () => {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  padding: var(--spacing-lg);
+  min-height: 70vh;
+  padding: 2rem;
 }
 
 .login-form-container {
   width: 100%;
   max-width: 400px;
-  padding: var(--spacing-xl);
-  background-color: var(--color-surface);
-  border-radius: var(--border-radius);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 3rem;
+  @apply bg-surface dark:bg-surface-dark;
+  @apply border border-outline/30 dark:border-outline-dark/30;
+  @apply rounded-md3-xl shadow-md3-3;
 }
 
 .form-title {
   font-size: 2rem;
   font-weight: bold;
   text-align: center;
-  margin-bottom: var(--spacing-xs);
-  color: var(--color-text);
+  margin-bottom: 0.5rem;
+  @apply text-primary dark:text-primary-dark;
 }
 
 .form-subtitle {
   text-align: center;
-  color: var(--color-text-light);
-  margin-bottom: var(--spacing-lg);
+  @apply text-surface-on-variant dark:text-surface-dark-on;
+  margin-bottom: 2rem;
 }
 
 .error-message {
-  color: var(--color-error);
+  @apply text-error dark:text-error-dark;
   text-align: center;
-  margin: var(--spacing-md) 0;
+  margin: 1rem 0;
 }
 
 .login-button {
   width: 100%;
-  padding: var(--spacing-sm) 0;
+  padding: 1rem 0;
   font-size: 1.1rem;
   font-weight: 600;
 }

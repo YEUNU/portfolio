@@ -11,11 +11,10 @@ export default {
   },
   setup(props) {
     onMounted(() => {
-      // 중요한 리소스들을 미리 로드하도록 link 태그 추가
+      // API 요청은 preload하지 않음 (효과가 없고 경고만 발생)
+      // 필요시 정적 리소스(이미지, 폰트 등)만 preload
       const preloadUrls = [
-        '/api/v1/board/tags', // 태그 목록
-        '/api/v1/board/', // 메인 게시글 목록
-        ...props.urls,
+        ...props.urls, // 외부에서 전달된 정적 리소스만 preload
       ];
 
       preloadUrls.forEach((url) => {

@@ -1,14 +1,20 @@
 <template>
-  <div class="form-field">
-    <label v-if="label" :for="id" class="form-label">{{ label }}</label>
+  <div class="mb-4">
+    <label 
+      v-if="label" 
+      :for="id" 
+      class="block text-sm font-medium text-surface-on dark:text-surface-dark-on mb-2"
+    >
+      {{ label }}
+    </label>
     <textarea
       v-if="type === 'textarea'"
       :id="id"
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
       v-bind="$attrs"
-      class="form-input"
       :rows="rows"
+      class="w-full px-4 py-3 bg-surface dark:bg-surface-dark border border-outline dark:border-outline-dark rounded-md3-md text-surface-on dark:text-surface-dark-on placeholder-surface-on-variant dark:placeholder-surface-dark-on focus:outline-none focus:border-primary dark:focus:border-primary-dark focus:shadow-md3-1 transition-all duration-200 resize-vertical min-h-[100px]"
     ></textarea>
     <input
       v-else
@@ -17,7 +23,7 @@
       :value="modelValue"
       @input="$emit('update:modelValue', $event.target.value)"
       v-bind="$attrs"
-      class="form-input"
+      class="w-full px-4 py-3 bg-surface dark:bg-surface-dark border border-outline dark:border-outline-dark rounded-md3-md text-surface-on dark:text-surface-dark-on placeholder-surface-on-variant dark:placeholder-surface-dark-on focus:outline-none focus:border-primary dark:focus:border-primary-dark focus:shadow-md3-1 transition-all duration-200"
     />
   </div>
 </template>
@@ -48,37 +54,3 @@ const id = computed(() => `form-field-${Math.random().toString(36).substr(2, 9)}
 
 defineEmits(['update:modelValue']);
 </script>
-
-<style scoped>
-.form-field {
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #e0e0e0;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.8rem;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  color: #e0e0e0;
-  font-size: 1rem;
-  transition: border-color 0.2s;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3d8bfd;
-}
-
-textarea.form-input {
-  resize: vertical;
-  min-height: 100px;
-}
-</style>

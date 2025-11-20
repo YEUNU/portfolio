@@ -1,15 +1,17 @@
 # --- 1단계: 빌드 환경 ---
 # Node.js 이미지를 기반으로 빌드 환경을 설정합니다.
-FROM node:16-alpine as build-stage
+FROM node:18-alpine as build-stage
 
 WORKDIR /app
 
 # package.json과 package-lock.json을 먼저 복사하여 의존성을 캐싱합니다.
 COPY package*.json ./
-RUN npm install
 
-# 소스코드 전체를 복사합니다.
+# 소스코드 전체를 복사합니다 (package-lock 이슈 회피)
 COPY . .
+
+# node_modules 삭제 후 깨끗하게 설치
+RUN npm install --legacy-peer-deps
 
 # 프로덕션용으로 애플리케이션을 빌드합니다.
 RUN npm run build
