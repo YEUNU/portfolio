@@ -159,10 +159,19 @@ const getThumbnailUrl = (post) => {
     return post.thumbnail_url;
   }
   if (typeof post.content === 'string') {
-    const regex = /!\[.*?\]\((.*?)\)/;
-    const match = post.content.match(regex);
-    if (match && match[1]) {
-      const imageUrl = match[1];
+    // TipTap HTML 형식에서 이미지 추출 (<img src="...">)
+    const htmlImgRegex = /<img[^>]+src="([^">]+)"/;
+    const htmlMatch = post.content.match(htmlImgRegex);
+    if (htmlMatch && htmlMatch[1]) {
+      const imageUrl = htmlMatch[1];
+      return imageUrl.startsWith('/') ? `${api.defaults.baseURL}${imageUrl}` : imageUrl;
+    }
+    
+    // 마크다운 형식도 지원 (하위 호환성)
+    const mdRegex = /!\[.*?\]\((.*?)\)/;
+    const mdMatch = post.content.match(mdRegex);
+    if (mdMatch && mdMatch[1]) {
+      const imageUrl = mdMatch[1];
       return imageUrl.startsWith('/') ? `${api.defaults.baseURL}${imageUrl}` : imageUrl;
     }
   }

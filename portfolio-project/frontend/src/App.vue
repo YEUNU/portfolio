@@ -37,6 +37,23 @@
           </button>
 
           <div v-if="authStore.isLoggedIn && authStore.isAdmin" class="flex items-center gap-2">
+            <!-- PDF Download Button -->
+            <button 
+              @click="handlePDFDownload"
+              :disabled="downloadingPDF"
+              class="inline-flex items-center justify-center gap-2 px-3 sm:px-5 py-2 sm:py-2.5 bg-secondary dark:bg-secondary-dark hover:bg-secondary-600 dark:hover:bg-secondary-400 text-white text-sm font-medium rounded-md3-full shadow-md3-2 hover:shadow-md3-3 transition-all duration-200 flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+              title="포트폴리오 PDF 다운로드"
+            >
+              <svg v-if="!downloadingPDF" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <svg v-else class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span class="hidden sm:inline whitespace-nowrap">{{ downloadingPDF ? 'PDF 생성중...' : 'PDF' }}</span>
+            </button>
+            
             <!-- Write Button - Hidden on mobile (use FAB instead) -->
             <router-link 
               to="/write" 
@@ -47,6 +64,7 @@
               </svg>
               <span class="whitespace-nowrap">글쓰기</span>
             </router-link>
+            
             <!-- Logout Button - Icon only on mobile -->
             <button 
               @click="handleLogout" 
@@ -85,7 +103,7 @@
 </template>
 
 <script setup>
-import { onUnmounted } from 'vue';
+import { ref, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import { useThemeStore } from '@/store/theme';
@@ -93,14 +111,31 @@ import PreloadLinks from '@/components/common/PreloadLinks.vue';
 import NavigationRail from '@/components/common/NavigationRail.vue';
 import DockedToolbar from '@/components/common/DockedToolbar.vue';
 import GlobalSearch from '@/components/common/GlobalSearch.vue';
+import { generatePortfolioPDF } from '@/utils/pdfGenerator';
 
 const router = useRouter();
 const authStore = useAuthStore();
 const themeStore = useThemeStore();
+const downloadingPDF = ref(false);
 
 const handleLogout = () => {
   authStore.logout();
   router.push({ name: 'Login' });
+};
+
+const handlePDFDownload = async () => {
+  if (downloadingPDF.value) return;
+  
+  try {
+    downloadingPDF.value = true;
+    await generatePortfolioPDF();
+    // 성공 메시지는 브라우저의 다운로드 알림으로 대체
+  } catch (error) {
+    console.error('PDF 다운로드 실패:', error);
+    alert('PDF 생성에 실패했습니다. 다시 시도해주세요.');
+  } finally {
+    downloadingPDF.value = false;
+  }
 };
 
 onUnmounted(() => {

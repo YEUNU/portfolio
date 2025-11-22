@@ -24,7 +24,7 @@
       </div>
 
       <div class="editor-layout">
-        <!-- Editor Section -->
+        <!-- Editor Section (full width) -->
         <div class="editor-container">
           <div class="form-group">
             <label for="content" class="block text-sm font-medium text-surface-on dark:text-surface-dark-on mb-2">
@@ -42,18 +42,6 @@
               accept="image/*"
               hidden
             />
-          </div>
-        </div>
-
-        <!-- Preview Section -->
-        <div class="preview-container">
-          <div class="sticky top-24">
-            <h3 class="text-lg font-semibold text-surface-on dark:text-surface-dark-on mb-3">미리보기</h3>
-            <div class="preview-content bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 rounded-md3-md p-6 min-h-[400px] max-h-[800px] overflow-auto">
-              <h2 class="text-2xl font-bold text-surface-on dark:text-surface-dark-on mb-4">{{ post.title || '제목을 입력하세요' }}</h2>
-              <div v-if="post.content" v-html="post.content" class="rendered-content"></div>
-              <p v-else class="text-surface-on-variant dark:text-surface-dark-on">내용을 입력하면 여기에 미리보기가 표시됩니다.</p>
-            </div>
           </div>
         </div>
       </div>
@@ -198,22 +186,17 @@ const handleSubmit = async () => {
 
 <style scoped>
 .editor-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
+  display: block;
+  gap: 0;
   align-items: start;
-  min-height: 600px;
+  min-height: 400px;
 }
 
 .editor-container {
   min-width: 0;
 }
 
-.preview-container {
-  min-width: 0;
-  position: sticky;
-  top: 6rem;
-}
+/* preview removed: preview-container styles intentionally removed */
 
 .form-group {
   @apply mb-6;

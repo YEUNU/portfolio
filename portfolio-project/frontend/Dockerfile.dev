@@ -1,0 +1,13 @@
+# 개발 환경용 Dockerfile (빌드 없이 dev server)
+FROM node:18-alpine
+
+WORKDIR /app
+
+# package.json 복사 및 의존성 설치
+COPY package*.json ./
+RUN npm install --legacy-peer-deps
+
+# 소스 코드는 volume으로 마운트됨
+EXPOSE 3000
+
+CMD ["npm", "run", "serve"]

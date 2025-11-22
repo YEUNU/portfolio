@@ -59,6 +59,35 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
           </svg>
         </button>
+        <button
+          @click="editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()"
+          :class="{ 'is-active': editor.isActive('highlight') }"
+          class="toolbar-btn"
+          type="button"
+          title="형광펜"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10M9 18h6M9 15h6M5 12h.01M5 12l5-5m0 0L14 3l4 4-5 5" />
+          </svg>
+        </button>
+        <button
+          @click="editor.chain().focus().toggleSubscript().run()"
+          :class="{ 'is-active': editor.isActive('subscript') }"
+          class="toolbar-btn"
+          type="button"
+          title="아래 첨자"
+        >
+          X<sub class="text-xs">₂</sub>
+        </button>
+        <button
+          @click="editor.chain().focus().toggleSuperscript().run()"
+          :class="{ 'is-active': editor.isActive('superscript') }"
+          class="toolbar-btn"
+          type="button"
+          title="위 첨자"
+        >
+          X<sup class="text-xs">²</sup>
+        </button>
       </div>
 
       <div class="toolbar-divider"></div>
@@ -91,6 +120,42 @@
           title="제목 3"
         >
           H3
+        </button>
+        <button
+          @click="editor.chain().focus().toggleHeading({ level: 4 }).run()"
+          :class="{ 'is-active': editor.isActive('heading', { level: 4 }) }"
+          class="toolbar-btn"
+          type="button"
+          title="제목 4"
+        >
+          H4
+        </button>
+        <button
+          @click="editor.chain().focus().toggleHeading({ level: 5 }).run()"
+          :class="{ 'is-active': editor.isActive('heading', { level: 5 }) }"
+          class="toolbar-btn"
+          type="button"
+          title="제목 5"
+        >
+          H5
+        </button>
+        <button
+          @click="editor.chain().focus().toggleHeading({ level: 6 }).run()"
+          :class="{ 'is-active': editor.isActive('heading', { level: 6 }) }"
+          class="toolbar-btn"
+          type="button"
+          title="제목 6"
+        >
+          H6
+        </button>
+        <button
+          @click="editor.chain().focus().setParagraph().run()"
+          :class="{ 'is-active': editor.isActive('paragraph') }"
+          class="toolbar-btn"
+          type="button"
+          title="본문"
+        >
+          P
         </button>
       </div>
 
@@ -204,6 +269,110 @@
 
       <div class="toolbar-divider"></div>
 
+      <!-- Table Operations (표 수정 기능들) -->
+      <div v-if="editor.isActive('table')" class="toolbar-group">
+        <button
+          @click="editor.chain().focus().addColumnBefore().run()"
+          class="toolbar-btn"
+          type="button"
+          title="왼쪽에 열 추가"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m-8-8h16" />
+          </svg>
+          ←
+        </button>
+        <button
+          @click="editor.chain().focus().addColumnAfter().run()"
+          class="toolbar-btn"
+          type="button"
+          title="오른쪽에 열 추가"
+        >
+          →
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m-8-8h16" />
+          </svg>
+        </button>
+        <button
+          @click="editor.chain().focus().deleteColumn().run()"
+          class="toolbar-btn"
+          type="button"
+          title="열 삭제"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Col
+        </button>
+        <button
+          @click="editor.chain().focus().addRowBefore().run()"
+          class="toolbar-btn"
+          type="button"
+          title="위에 행 추가"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m-8-8h16" />
+          </svg>
+          ↑
+        </button>
+        <button
+          @click="editor.chain().focus().addRowAfter().run()"
+          class="toolbar-btn"
+          type="button"
+          title="아래에 행 추가"
+        >
+          ↓
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m-8-8h16" />
+          </svg>
+        </button>
+        <button
+          @click="editor.chain().focus().deleteRow().run()"
+          class="toolbar-btn"
+          type="button"
+          title="행 삭제"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          Row
+        </button>
+        <button
+          @click="editor.chain().focus().deleteTable().run()"
+          class="toolbar-btn"
+          type="button"
+          title="표 삭제"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+        <button
+          @click="editor.chain().focus().mergeCells().run()"
+          :disabled="!editor.can().mergeCells()"
+          class="toolbar-btn"
+          type="button"
+          title="셀 병합"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+        <button
+          @click="editor.chain().focus().splitCell().run()"
+          :disabled="!editor.can().splitCell()"
+          class="toolbar-btn"
+          type="button"
+          title="셀 분할"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="toolbar-divider"></div>
+
       <!-- Text Align -->
       <div class="toolbar-group">
         <button
@@ -291,6 +460,9 @@ import TaskItem from '@tiptap/extension-task-item';
 import TextAlign from '@tiptap/extension-text-align';
 import TextStyle from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
+import Highlight from '@tiptap/extension-highlight';
+import Subscript from '@tiptap/extension-subscript';
+import Superscript from '@tiptap/extension-superscript';
 import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
 import { createLowlight } from 'lowlight';
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -353,6 +525,11 @@ const editor = useEditor({
     }),
     TextStyle,
     Color,
+    Highlight.configure({
+      multicolor: true,
+    }),
+    Subscript,
+    Superscript,
     CodeBlockLowlight.configure({
       lowlight,
       HTMLAttributes: {
@@ -362,7 +539,7 @@ const editor = useEditor({
   ],
   editorProps: {
     attributes: {
-      class: 'prose prose-invert max-w-none focus:outline-none min-h-[400px] p-4 bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 border-t-0 rounded-b-md3-md text-surface-on dark:text-surface-dark-on',
+      class: 'prose prose-invert max-w-none focus:outline-none h-[600px] overflow-y-auto p-4 bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 border-t-0 rounded-b-md3-md text-surface-on dark:text-surface-dark-on',
     },
   },
   onUpdate: ({ editor }) => {

@@ -106,9 +106,18 @@ const tagList = computed(() => {
 
 function extractFirstImage(content) {
   if (!content) return null;
-  const regex = /!\[.*?\]\((.*?)\)/;
-  const match = content.match(regex);
-  return match ? match[1] : null;
+  
+  // TipTap HTML 형식에서 이미지 추출 (<img src="...">)
+  const htmlImgRegex = /<img[^>]+src="([^">]+)"/;
+  const htmlMatch = content.match(htmlImgRegex);
+  if (htmlMatch && htmlMatch[1]) {
+    return htmlMatch[1];
+  }
+  
+  // 마크다운 형식도 지원 (하위 호환성)
+  const mdRegex = /!\[.*?\]\((.*?)\)/;
+  const mdMatch = content.match(mdRegex);
+  return mdMatch ? mdMatch[1] : null;
 }
 
 defineEmits(['click', 'edit', 'delete']);

@@ -7,11 +7,11 @@ WORKDIR /app
 # package.json과 package-lock.json을 먼저 복사하여 의존성을 캐싱합니다.
 COPY package*.json ./
 
-# 소스코드 전체를 복사합니다 (package-lock 이슈 회피)
-COPY . .
-
-# node_modules 삭제 후 깨끗하게 설치
+# 의존성만 먼저 설치 (package.json이 변경되지 않으면 캐시됨)
 RUN npm install --legacy-peer-deps
+
+# 소스코드를 나중에 복사 (코드 변경 시에만 빌드 레이어가 변경됨)
+COPY . .
 
 # 프로덕션용으로 애플리케이션을 빌드합니다.
 RUN npm run build
