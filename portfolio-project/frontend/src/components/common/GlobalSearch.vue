@@ -5,22 +5,22 @@
       <button
         v-if="!isExpanded"
         @click="expandSearch"
-        class="p-2 rounded-md3-full text-surface-on-variant dark:text-surface-dark-on hover:text-surface-on dark:hover:text-surface-dark-on hover:bg-surface-variant dark:hover:bg-surface-dark-variant transition-all shadow-md3-1"
+        class="p-2 sm:p-2.5 rounded-md3-full text-surface-on-variant dark:text-surface-dark-on hover:text-surface-on dark:hover:text-surface-dark-on hover:bg-surface-variant dark:hover:bg-surface-dark-variant transition-all shadow-md3-1 flex-shrink-0"
         aria-label="검색"
       >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
       </button>
       
-      <div v-else class="flex items-center gap-2">
+      <div v-else class="absolute right-0 top-0 z-50 flex items-center gap-2 bg-surface/95 dark:bg-surface-dark/95 backdrop-blur-md p-2 rounded-md3-full shadow-md3-4 border border-outline/20 dark:border-outline-dark/20">
         <div class="relative">
           <input
             ref="searchInput"
             v-model="query"
             type="text"
             placeholder="전체 검색..."
-            class="w-48 sm:w-64 px-4 py-2 pl-10 bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 rounded-md3-full text-surface-on dark:text-surface-dark-on placeholder-surface-on-variant dark:placeholder-surface-dark-on focus:outline-none focus:border-primary dark:focus:border-primary-dark focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary-dark/20 transition-all text-sm"
+            class="w-56 sm:w-64 px-4 py-2 pl-10 bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 rounded-md3-full text-surface-on dark:text-surface-dark-on placeholder-surface-on-variant dark:placeholder-surface-dark-on focus:outline-none focus:border-primary dark:focus:border-primary-dark focus:ring-2 focus:ring-primary/20 dark:focus:ring-primary-dark/20 transition-all text-sm"
             @input="handleSearch"
             @blur="handleBlur"
             @keydown.esc="collapseSearch"
@@ -45,7 +45,7 @@
         </div>
         <button
           @click="collapseSearch"
-          class="p-2 rounded-md3-full text-surface-on-variant dark:text-surface-dark-on hover:text-surface-on dark:hover:text-surface-dark-on hover:bg-surface-variant dark:hover:bg-surface-dark-variant transition-all"
+          class="p-2 rounded-md3-full text-surface-on-variant dark:text-surface-dark-on hover:text-surface-on dark:hover:text-surface-dark-on hover:bg-surface-variant dark:hover:bg-surface-dark-variant transition-all flex-shrink-0"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -57,7 +57,7 @@
     <!-- Search Results Dropdown -->
     <div
       v-if="isExpanded && (results.length > 0 || isSearching)"
-      class="absolute right-0 mt-2 w-96 max-h-96 overflow-y-auto bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 rounded-md3-lg shadow-md3-5 z-50"
+      class="absolute right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-h-96 overflow-y-auto bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 rounded-md3-lg shadow-md3-5 z-50"
     >
       <!-- Loading -->
       <div v-if="isSearching" class="p-4 text-center text-surface-on-variant dark:text-surface-dark-on">

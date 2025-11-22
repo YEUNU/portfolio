@@ -49,9 +49,9 @@
         <div class="preview-container">
           <div class="sticky top-24">
             <h3 class="text-lg font-semibold text-surface-on dark:text-surface-dark-on mb-3">미리보기</h3>
-            <div class="preview-content bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 rounded-md3-md p-6 min-h-[400px] overflow-auto">
+            <div class="preview-content bg-surface dark:bg-surface-dark border border-outline/30 dark:border-outline-dark/30 rounded-md3-md p-6 min-h-[400px] max-h-[800px] overflow-auto">
               <h2 class="text-2xl font-bold text-surface-on dark:text-surface-dark-on mb-4">{{ post.title || '제목을 입력하세요' }}</h2>
-              <div v-if="post.content" v-html="post.content" class="markdown-preview"></div>
+              <div v-if="post.content" v-html="post.content" class="rendered-content"></div>
               <p v-else class="text-surface-on-variant dark:text-surface-dark-on">내용을 입력하면 여기에 미리보기가 표시됩니다.</p>
             </div>
           </div>
@@ -253,112 +253,234 @@ const handleSubmit = async () => {
   @apply bg-primary dark:bg-primary-dark text-white scale-95;
 }
 
-/* Markdown Preview Styles */
-.markdown-preview {
+/* Rendered Content Preview Styles */
+.rendered-content {
   line-height: 1.7;
   word-wrap: break-word;
   overflow-wrap: break-word;
   @apply text-surface-on dark:text-surface-dark-on;
 }
 
-.markdown-preview :deep(h1),
-.markdown-preview :deep(h2),
-.markdown-preview :deep(h3),
-.markdown-preview :deep(h4),
-.markdown-preview :deep(h5),
-.markdown-preview :deep(h6) {
-  @apply text-surface-on dark:text-surface-dark-on font-bold;
-  border-bottom: 1px solid;
-  @apply border-outline/30 dark:border-outline-dark/30;
+/* Headings */
+.rendered-content :deep(h1) {
+  @apply text-4xl font-bold mb-4 text-primary dark:text-primary-dark;
+  border-bottom: 2px solid;
+  @apply border-primary/30 dark:border-primary-dark/30;
   padding-bottom: 0.5rem;
-  margin-top: 1.5rem;
-  margin-bottom: 1rem;
+  margin-top: 2rem;
 }
 
-.markdown-preview :deep(h1) { @apply text-3xl; }
-.markdown-preview :deep(h2) { @apply text-2xl; }
-.markdown-preview :deep(h3) { @apply text-xl; }
+.rendered-content :deep(h2) {
+  @apply text-3xl font-bold mb-3 text-primary dark:text-primary-dark;
+  border-bottom: 2px solid;
+  @apply border-primary/30 dark:border-primary-dark/30;
+  padding-bottom: 0.5rem;
+  margin-top: 1.75rem;
+}
 
-.markdown-preview :deep(p) {
+.rendered-content :deep(h3) {
+  @apply text-2xl font-bold mb-2 text-primary dark:text-primary-dark;
+  margin-top: 1.5rem;
+}
+
+.rendered-content :deep(h4) {
+  @apply text-xl font-bold mb-2 text-surface-on dark:text-surface-dark-on;
+  margin-top: 1.25rem;
+}
+
+.rendered-content :deep(h5) {
+  @apply text-lg font-bold mb-2 text-surface-on dark:text-surface-dark-on;
+  margin-top: 1rem;
+}
+
+.rendered-content :deep(h6) {
+  @apply text-base font-bold mb-2 text-surface-on dark:text-surface-dark-on;
+  margin-top: 1rem;
+}
+
+/* Paragraphs */
+.rendered-content :deep(p) {
   margin-bottom: 1rem;
   @apply text-surface-on dark:text-surface-dark-on;
+  line-height: 1.8;
 }
 
-.markdown-preview :deep(a) {
+/* Links */
+.rendered-content :deep(a) {
   @apply text-primary dark:text-primary-dark underline hover:text-primary-600 dark:hover:text-primary-300;
+  transition: color 0.2s ease;
 }
 
-.markdown-preview :deep(code) {
-  @apply bg-surface-variant dark:bg-surface-dark-variant text-surface-on dark:text-surface-dark-on;
-  padding: 0.2rem 0.4rem;
+/* Inline Code */
+.rendered-content :deep(code) {
+  @apply bg-surface-variant dark:bg-surface-dark-variant text-error dark:text-error-dark;
+  padding: 0.2rem 0.5rem;
   border-radius: 4px;
   font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
 }
 
-.markdown-preview :deep(pre) {
+/* Code Blocks */
+.rendered-content :deep(pre) {
   @apply bg-surface-variant dark:bg-surface-dark-variant;
-  padding: 1rem;
+  padding: 1.5rem;
   border-radius: 8px;
   overflow-x: auto;
-  margin-bottom: 1rem;
+  margin: 1.5rem 0;
+  border: 1px solid;
+  @apply border-outline/20 dark:border-outline-dark/20;
 }
 
-.markdown-preview :deep(pre) code {
+.rendered-content :deep(pre code) {
   background-color: transparent;
   padding: 0;
   @apply text-surface-on dark:text-surface-dark-on;
+  font-size: 0.9em;
+  line-height: 1.6;
 }
 
-.markdown-preview :deep(blockquote) {
+/* Blockquotes */
+.rendered-content :deep(blockquote) {
   @apply border-l-4 border-primary dark:border-primary-dark;
-  padding-left: 1rem;
-  margin-left: 0;
-  margin-bottom: 1rem;
+  padding-left: 1.5rem;
+  margin: 1.5rem 0;
   @apply text-surface-on-variant dark:text-surface-dark-on;
+  font-style: italic;
+  background: rgba(0, 0, 0, 0.02);
+  @apply dark:bg-white/5;
+  padding: 1rem 1rem 1rem 1.5rem;
+  border-radius: 0 8px 8px 0;
 }
 
-.markdown-preview :deep(ul),
-.markdown-preview :deep(ol) {
+.rendered-content :deep(blockquote p) {
+  margin-bottom: 0.5rem;
+}
+
+.rendered-content :deep(blockquote p:last-child) {
+  margin-bottom: 0;
+}
+
+/* Lists */
+.rendered-content :deep(ul),
+.rendered-content :deep(ol) {
   @apply text-surface-on dark:text-surface-dark-on;
   margin-bottom: 1rem;
   padding-left: 2rem;
 }
 
-.markdown-preview :deep(li) {
+.rendered-content :deep(ul) {
+  list-style-type: disc;
+}
+
+.rendered-content :deep(ol) {
+  list-style-type: decimal;
+}
+
+.rendered-content :deep(li) {
   @apply text-surface-on dark:text-surface-dark-on;
+  margin-bottom: 0.5rem;
+  line-height: 1.7;
+}
+
+.rendered-content :deep(li > ul),
+.rendered-content :deep(li > ol) {
+  margin-top: 0.5rem;
   margin-bottom: 0.5rem;
 }
 
-.markdown-preview :deep(table) {
+/* Task Lists */
+.rendered-content :deep(ul[data-type="taskList"]) {
+  list-style: none;
+  padding-left: 0;
+}
+
+.rendered-content :deep(ul[data-type="taskList"] li) {
+  display: flex;
+  align-items: start;
+  gap: 0.5rem;
+}
+
+.rendered-content :deep(ul[data-type="taskList"] li input[type="checkbox"]) {
+  margin-top: 0.25rem;
+  cursor: pointer;
+}
+
+.rendered-content :deep(ul[data-type="taskList"] li label) {
+  cursor: pointer;
+}
+
+/* Tables */
+.rendered-content :deep(table) {
   @apply text-surface-on dark:text-surface-dark-on border border-outline dark:border-outline-dark;
   width: 100%;
-  margin-bottom: 1rem;
+  margin: 1.5rem 0;
   border-collapse: collapse;
+  border-radius: 8px;
+  overflow: hidden;
 }
 
-.markdown-preview :deep(th),
-.markdown-preview :deep(td) {
-  @apply border border-outline dark:border-outline-dark;
-  padding: 0.5rem;
+.rendered-content :deep(th),
+.rendered-content :deep(td) {
+  @apply border border-outline/30 dark:border-outline-dark/30;
+  padding: 0.75rem;
+  text-align: left;
 }
 
-.markdown-preview :deep(th) {
+.rendered-content :deep(th) {
   @apply bg-surface-variant dark:bg-surface-dark-variant font-bold;
 }
 
-.markdown-preview :deep(strong) {
+.rendered-content :deep(tr:nth-child(even)) {
+  @apply bg-surface-variant/50 dark:bg-surface-dark-variant/50;
+}
+
+/* Text Formatting */
+.rendered-content :deep(strong) {
   @apply text-surface-on dark:text-surface-dark-on font-bold;
 }
 
-.markdown-preview :deep(em) {
+.rendered-content :deep(em) {
   @apply text-surface-on dark:text-surface-dark-on italic;
 }
 
-.markdown-preview :deep(img) {
+.rendered-content :deep(u) {
+  text-decoration: underline;
+}
+
+.rendered-content :deep(s) {
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* Images */
+.rendered-content :deep(img) {
   max-width: 100%;
   height: auto;
   border-radius: 8px;
-  margin: 1rem 0;
+  margin: 1.5rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  @apply dark:shadow-none;
+}
+
+/* Horizontal Rules */
+.rendered-content :deep(hr) {
+  @apply border-outline/30 dark:border-outline-dark/30;
+  margin: 2rem 0;
+  border: none;
+  border-top: 2px solid;
+}
+
+/* Text Alignment */
+.rendered-content :deep([style*="text-align: left"]) {
+  text-align: left;
+}
+
+.rendered-content :deep([style*="text-align: center"]) {
+  text-align: center;
+}
+
+.rendered-content :deep([style*="text-align: right"]) {
+  text-align: right;
 }
 
 @media (max-width: 1024px) {
