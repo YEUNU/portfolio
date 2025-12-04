@@ -31,6 +31,7 @@
     "@tiptap/vue-3": "^2.1.13",
     "axios": "^1.7.2",
     "core-js": "^3.8.3",
+    "dompurify": "^3.0.6",
     "html2canvas": "^1.4.1",
     "jspdf": "^2.5.1",
     "jwt-decode": "^4.0.0",

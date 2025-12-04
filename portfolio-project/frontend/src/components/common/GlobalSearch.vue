@@ -107,6 +107,7 @@
 <script setup>
 import { ref, nextTick } from 'vue';
 import { useRouter } from 'vue-router';
+import DOMPurify from 'dompurify';
 import api from '@/services/api';
 
 const router = useRouter();
@@ -231,8 +232,10 @@ const handleSearch = async () => {
 };
 
 const stripHtml = (html) => {
+  // DOMPurify로 먼저 sanitize한 후 텍스트만 추출 (XSS 방지)
+  const sanitized = DOMPurify.sanitize(html, { ALLOWED_TAGS: [] });
   const tmp = document.createElement('div');
-  tmp.innerHTML = html;
+  tmp.innerHTML = sanitized;
   return tmp.textContent || tmp.innerText || '';
 };
 

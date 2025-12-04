@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Union
+import secrets as py_secrets
 
 from jose import jwt
 from passlib.context import CryptContext
@@ -17,12 +18,22 @@ pwd_context = CryptContext(schemes=["argon2", "bcrypt"], deprecated="auto")
 
 ALGORITHM = "HS256"
 
+# JWT 발급자 및 대상 식별자 (토큰 위조 방지를 위한 추가 클레임)
+JWT_ISSUER = "portfolio-api"
+JWT_AUDIENCE = "portfolio-frontend"
+
 
 def create_access_token(
     subject: Union[str, Any], expires_delta: timedelta = None
 ) -> str:
     """
     주어진 subject(보통 사용자 ID)를 기반으로 JWT 액세스 토큰을 생성합니다.
+    
+    보안 강화:
+    - jti (JWT ID): 각 토큰에 고유 식별자 부여
+    - iss (Issuer): 토큰 발급자 식별
+    - aud (Audience): 토큰 대상 식별
+    - iat (Issued At): 토큰 발급 시간
     """
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -32,7 +43,15 @@ def create_access_token(
             minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES
         )
     
-    to_encode = {"exp": expire, "sub": str(subject)}
+    now = datetime.now(timezone.utc)
+    to_encode = {
+        "sub": str(subject),
+        "exp": expire,
+        "iat": now,
+        "iss": JWT_ISSUER,
+        "aud": JWT_AUDIENCE,
+        "jti": py_secrets.token_hex(16),  # 고유 토큰 ID
+    }
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 

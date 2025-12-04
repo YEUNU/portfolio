@@ -20,13 +20,26 @@ def get_current_user(
 ) -> models.User:
     """
     API 요청 헤더의 JWT 토큰을 검증하고, 해당 토큰의 사용자 정보를 반환합니다.
+    
+    보안 강화:
+    - issuer (iss) 클레임 검증
+    - audience (aud) 클레임 검증
+    - 알고리즘 고정 (알고리즘 혼동 공격 방지)
     """
     try:
         payload = jwt.decode(
-            token, settings.SECRET_KEY, algorithms=[security.ALGORITHM]
+            token, 
+            settings.SECRET_KEY, 
+            algorithms=[security.ALGORITHM],
+            issuer=security.JWT_ISSUER,
+            audience=security.JWT_AUDIENCE,
+            options={
+                "require_exp": True,
+                "require_sub": True,
+            }
         )
         token_data = schemas.TokenPayload(**payload)
-    except (JWTError, ValidationError):
+    except (JWTError, ValidationError) as e:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Could not validate credentials",

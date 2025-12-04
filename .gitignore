@@ -249,10 +249,39 @@ $RECYCLE.BIN/
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,vuejs,windows
 
+# ==============================================================================
+# Security: Sensitive files - NEVER commit these to version control
+# ==============================================================================
 
+# Environment files containing secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+portfolio-project/.env
+portfolio-project/.env.*
+portfolio-project/backend/.env
+portfolio-project/backend/.env.*
+
+# SSL/TLS certificates and private keys
 *.pem
 *.key
 *.crt
+*.p12
+*.pfx
+ssl/
+portfolio-project/ssl/
+
+# Database dumps and backups (contain sensitive data)
+*.dump
+*.sql
+*.backup
+*.bak
+backups/
+portfolio-project/backups/
+
+# Static images (if they contain uploaded content)
 portfolio-project/backend/app/static/images/fad77491-9240-4dda-bd59-c4ca00df7a91.jpeg
 portfolio-project/backend/app/static/images/3269952f-0138-45a4-a503-41bd704ea7ed.jpeg
 portfolio-project/backend/app/static/images/b0332523-72e4-4d2e-8697-8d026d9051e5.jpeg

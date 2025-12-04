@@ -4,7 +4,7 @@
 
 <script setup>
 import { computed } from 'vue';
-import marked from '@/utils/markdown';
+import { renderMarkdownSafe } from '@/utils/markdown';
 
 // 'content'라는 이름의 prop을 정의합니다. 부모 컴포넌트로부터 마크다운 문자열을 전달받습니다.
 const props = defineProps({
@@ -14,9 +14,10 @@ const props = defineProps({
   },
 });
 
-// 전달받은 content prop을 HTML로 변환합니다.
+// 전달받은 content prop을 안전한 HTML로 변환합니다.
+// DOMPurify를 통해 XSS 공격이 방지됩니다.
 const renderedMarkdown = computed(() => {
-  return marked(props.content);
+  return renderMarkdownSafe(props.content);
 });
 </script>
 

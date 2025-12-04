@@ -1,7 +1,28 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 import api from '@/services/api';
+
+// DOMPurify 설정: PDF 생성에 필요한 안전한 HTML 태그만 허용
+const DOMPURIFY_CONFIG = {
+  ALLOWED_TAGS: [
+    'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+    'p', 'br', 'hr',
+    'ul', 'ol', 'li',
+    'blockquote', 'pre', 'code',
+    'a', 'img',
+    'strong', 'em', 'b', 'i', 'u', 's', 'del', 'ins',
+    'table', 'thead', 'tbody', 'tr', 'th', 'td',
+    'div', 'span',
+  ],
+  ALLOWED_ATTR: [
+    'href', 'src', 'alt', 'title', 'class', 'id',
+    'width', 'height',
+  ],
+  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
+  FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+};
 
 /**
  * 콘텐츠가 Markdown인지 HTML인지 감지
@@ -35,7 +56,7 @@ function isMarkdown(content) {
 }
 
 /**
- * Markdown을 HTML로 변환
+ * Markdown을 HTML로 변환 (DOMPurify로 XSS 방지)
  */
 function markdownToHtml(markdown) {
   // marked 설정
@@ -46,11 +67,13 @@ function markdownToHtml(markdown) {
     mangle: false       // 이메일 주소 난독화 안함
   });
   
-  return marked(markdown);
+  const rawHtml = marked(markdown);
+  // DOMPurify로 sanitize하여 XSS 방지
+  return DOMPurify.sanitize(rawHtml, DOMPURIFY_CONFIG);
 }
 
 /**
- * 콘텐츠를 HTML로 정규화 (Markdown이면 변환, HTML이면 그대로)
+ * 콘텐츠를 HTML로 정규화 (Markdown이면 변환, HTML이면 sanitize)
  */
 function normalizeContent(content) {
   if (!content) return '<p>내용 없음</p>';
@@ -59,7 +82,8 @@ function normalizeContent(content) {
     return markdownToHtml(content);
   }
   
-  return content;
+  // HTML 콘텐츠도 sanitize
+  return DOMPurify.sanitize(content, DOMPURIFY_CONFIG);
 }
 
 /**

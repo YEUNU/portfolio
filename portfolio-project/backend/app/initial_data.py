@@ -7,8 +7,13 @@ def init_db(db: Session) -> None:
     """
     데이터베이스에 초기 데이터를 생성합니다.
     (기본 관리자 계정, About/Contact 페이지 등)
+    
+    ⚠️ 보안 주의사항:
+    - 관리자 계정은 최초 생성 시에만 .env의 비밀번호를 사용합니다.
+    - 이미 존재하는 계정의 비밀번호는 자동으로 재설정하지 않습니다.
+    - 비밀번호 변경이 필요한 경우 관리자가 직접 변경해야 합니다.
     """
-    # 1. 기본 관리자 계정 생성
+    # 1. 기본 관리자 계정 생성 (최초 1회만)
     user = crud.user.get_by_username(db, username=settings.FIRST_ADMIN_USERNAME)
     if not user:
         user_in = schemas.UserCreate(
@@ -17,11 +22,11 @@ def init_db(db: Session) -> None:
             is_admin=True,
         )
         user = crud.user.create(db, obj_in=user_in)
-        print(f"Superuser '{settings.FIRST_ADMIN_USERNAME}' created")
+        print(f"⚠️  Superuser '{settings.FIRST_ADMIN_USERNAME}' created with initial password.")
+        print("⚠️  IMPORTANT: Change this password immediately after first login!")
     else:
-        # 이미 존재하면 비밀번호를 .env 값으로 갱신
-        crud.user.update(db, db_obj=user, obj_in={"password": settings.FIRST_ADMIN_PASSWORD})
-        print(f"Superuser '{settings.FIRST_ADMIN_USERNAME}' password updated from .env")
+        # 보안: 기존 계정의 비밀번호를 자동으로 재설정하지 않음
+        print(f"✓ Superuser '{settings.FIRST_ADMIN_USERNAME}' already exists (password unchanged)")
 
     # 2. 'About' 페이지 생성 (Board 테이블 사용)
     # slug를 기준으로 'about' 페이지가 있는지 확인합니다.
