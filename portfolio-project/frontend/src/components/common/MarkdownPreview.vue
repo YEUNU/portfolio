@@ -1,10 +1,12 @@
 <template>
-  <div class="markdown-preview" v-html="renderedMarkdown"></div>
+  <div class="markdown-preview" v-html="renderedMarkdown" @click="handleImageClick"></div>
+  <ImageModal :is-open="isModalOpen" :image-url="modalImageUrl" @close="closeModal" />
 </template>
 
 <script setup>
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { renderMarkdownSafe } from '@/utils/markdown';
+import ImageModal from '@/components/common/ImageModal.vue';
 
 // 'content'라는 이름의 prop을 정의합니다. 부모 컴포넌트로부터 마크다운 문자열을 전달받습니다.
 const props = defineProps({
@@ -19,6 +21,40 @@ const props = defineProps({
 const renderedMarkdown = computed(() => {
   return renderMarkdownSafe(props.content);
 });
+
+// 이미지 모달 상태 관리
+const isModalOpen = ref(false);
+const modalImageUrl = ref('');
+
+const handleImageClick = (event) => {
+  // 클릭된 요소가 이미지인지 확인
+  if (event.target.tagName === 'IMG') {
+    // 이미지를 감싸는 a 태그가 있는지 확인 (링크 이동 방지)
+    const parentLink = event.target.closest('a');
+    if (parentLink) {
+        // 이미지가 링크 안에 있으면 모달을 띄우지 않고 링크 동작을 따름 (또는 e.preventDefault()로 막고 모달 띄우기 선택)
+        // 여기서는 링크가 없는 순수 이미지일 때만 모달을 띄우는 것이 안전함.
+        // 하지만 마크다운 에디터에서 이미지를 단순히 넣으면 a 태그 없이 들어가는 경우가 많음.
+        // 만약 링크가 있어도 모달을 띄우고 싶다면 preventDefault 호출 필요.
+        
+        // 요구사항: "이미지 눌렀을 때 모달 해서 이미지 크게 볼 수 있는거"
+        // 링크가 '새 탭 열기' 같은게 아니라면 모달이 우선일 수 있습니다.
+        // 일단 a태그가 없을 때만 동작하게 합니다.
+        return; 
+    }
+
+    modalImageUrl.value = event.target.src;
+    isModalOpen.value = true;
+  }
+};
+
+const closeModal = () => {
+  isModalOpen.value = false;
+  // 닫기 애니메이션 시간 고려
+  setTimeout(() => {
+    if (!isModalOpen.value) modalImageUrl.value = '';
+  }, 200);
+};
 </script>
 
 <style scoped>
@@ -29,6 +65,19 @@ const renderedMarkdown = computed(() => {
   max-width: 100%;
   overflow-x: hidden;
   @apply text-surface-on dark:text-surface-dark-on;
+}
+
+/* 이미지 스타일 및 커서 추가 */
+.markdown-preview :deep(img) {
+  @apply rounded-lg my-6 cursor-zoom-in transition-all duration-200;
+  max-height: 500px;
+  width: auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.markdown-preview :deep(img):hover {
+  transform: scale(1.01);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* 제목 스타일 */
