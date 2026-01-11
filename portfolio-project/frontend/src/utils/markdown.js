@@ -7,6 +7,10 @@ import api from '@/services/api';
 // '/static/...' 같은 상대 경로도 올바른 전체 URL로 인식하게 됩니다.
 marked.setOptions({
   baseUrl: api.defaults.baseURL,
+  breaks: true,
+  gfm: true,
+  headerIds: false,
+  mangle: false,
   // sanitize 옵션은 최신 버전에서 deprecated 되었습니다.
   // DOMPurify를 통해 XSS를 방지합니다.
   sanitize: false,
