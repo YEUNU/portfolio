@@ -1,12 +1,8 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <div class="mb-8">
-      <h1 class="text-4xl md:text-5xl font-bold text-primary dark:text-primary-dark mb-2 animate-fade-in">
-        {{ isEditing ? '게시글 수정' : '새 글 작성하기' }}
-      </h1>
-      <div class="h-1 w-20 bg-primary dark:bg-primary-dark rounded-md3-full"></div>
-    </div>
-    
+  <PageContainer
+    :title="isEditing ? '게시글 수정' : '새 글 작성하기'"
+    :loading="initialLoading"
+  >
     <form @submit.prevent="handleSubmit">
       <!-- Title (Full Width) -->
       <div class="form-group mb-6">
@@ -73,13 +69,13 @@
         <button 
           type="submit" 
           class="px-6 py-3 bg-primary dark:bg-primary-dark text-white rounded-md3-md hover:shadow-md3-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200" 
-          :disabled="loading"
+          :disabled="submitting"
         >
-          {{ loading ? '저장 중...' : isEditing ? '수정하기' : '저장하기' }}
+          {{ submitting ? '저장 중...' : isEditing ? '수정하기' : '저장하기' }}
         </button>
       </div>
     </form>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup>
@@ -87,6 +83,7 @@ import { ref, computed, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import api from '@/services/api';
 import TiptapEditor from '@/components/editor/TiptapEditor.vue';
+import PageContainer from '@/components/common/PageContainer.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -95,7 +92,8 @@ const post = ref({
   content: '',
   tags: '',
 });
-const loading = ref(false);
+const initialLoading = ref(false);
+const submitting = ref(false);
 const error = ref(null);
 const fileInput = ref(null);
 const tiptapEditor = ref(null);
@@ -105,7 +103,7 @@ const isEditing = computed(() => !!route.params.id);
 onMounted(async () => {
   const postId = route.params.id;
   if (isEditing.value && postId) {
-    loading.value = true;
+    initialLoading.value = true;
     error.value = null;
     try {
       let response;
@@ -127,7 +125,7 @@ onMounted(async () => {
       console.error('Failed to load post for editing:', err);
       error.value = '게시글을 불러오는 데 실패했습니다.';
     } finally {
-      loading.value = false;
+      initialLoading.value = false;
     }
   }
 });
@@ -163,7 +161,7 @@ const handleFileUpload = async (event) => {
 };
 
 const handleSubmit = async () => {
-  loading.value = true;
+  submitting.value = true;
   error.value = null;
   try {
     const contentToSave = post.value.content.replace(new RegExp(api.defaults.baseURL, 'g'), '');
@@ -179,7 +177,7 @@ const handleSubmit = async () => {
     console.error('저장 실패:', err);
     error.value = '저장에 실패했습니다.';
   } finally {
-    loading.value = false;
+    submitting.value = false;
   }
 };
 </script>

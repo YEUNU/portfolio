@@ -1,18 +1,17 @@
 <template>
-  <div class="page-container post-detail-view">
-    <div v-if="loading" class="loading">게시글을 불러오는 중입니다...</div>
-    <div v-else-if="error" class="error">
-      {{ error }}
-    </div>
-    <article v-else-if="post">
-      <h1 class="post-title">{{ post.title }}</h1>
+  <PageContainer
+    :title="post?.title || '게시글'"
+    :loading="loading"
+    :error="error"
+  >
+    <article v-if="post" class="post-detail-view">
       <div class="post-meta">
         <span v-if="post.author">작성자: {{ post.author }}</span>
         <span v-if="formattedDate">작성일: {{ formattedDate }}</span>
       </div>
       <MarkdownPreview :content="post.content" />
     </article>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup>
@@ -20,6 +19,7 @@ import { ref, onMounted, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import api from '@/services/api';
 import MarkdownPreview from '@/components/common/MarkdownPreview.vue';
+import PageContainer from '@/components/common/PageContainer.vue';
 import { useMeta } from '@/composables/useMeta';
 
 const route = useRoute();
@@ -56,13 +56,13 @@ const fetchPost = async (postId) => {
 const updatePostMeta = (postData) => {
   // 게시글의 첫 번째 이미지 찾기
   const getFirstImage = (content) => {
-    const regex = /!\[.*?]\((.*?)\)/;
+    const regex = /!\[.*?\]\((.*?)\)/;
     const match = content.match(regex);
     if (match && match[1]) {
       const imageUrl = match[1];
-      return imageUrl.startsWith('/') ? `${api.defaults.baseURL}${imageUrl}` : imageUrl;
+      return new URL(imageUrl, window.location.origin).href;
     }
-    return '/og-image.jpg';
+    return new URL('/og-image.jpg', window.location.origin).href;
   };
 
   // 메타 설명을 위한 텍스트 추출 (마크다운 제거)
@@ -76,12 +76,13 @@ const updatePostMeta = (postData) => {
   const title = `${postData.title} - 성연우의 포트폴리오`;
   const description = getDescriptionFromContent(postData.content);
   const ogImage = getFirstImage(postData.content);
+  const canonical = new URL(`/post/${postData.id}`, window.location.origin).href;
 
   updateMeta({
     title,
     description,
     keywords: `성연우, 포트폴리오, ${postData.title}, ${postData.tags || '개발자'}`,
-    canonical: `https://your-domain.com/post/${postData.id}`,
+    canonical,
     ogImage,
   });
 
@@ -97,10 +98,10 @@ const updatePostMeta = (postData) => {
     },
     datePublished: postData.created_at,
     dateModified: postData.updated_at || postData.created_at,
-    url: `https://your-domain.com/post/${postData.id}`,
+    url: canonical,
     image: ogImage,
     keywords: postData.tags,
-  });
+  }, 'post-ld-json');
 };
 
 // 컴포넌트가 처음 마운트될 때 게시글을 불러옵니다.
@@ -127,13 +128,6 @@ watch(
   color: var(--color-text);
 }
 
-.post-title {
-  font-size: 3rem;
-  font-weight: bold;
-  color: var(--color-text);
-  margin-bottom: var(--spacing-sm);
-}
-
 .post-meta {
   color: var(--color-text-dark);
   margin-bottom: var(--spacing-xl);
@@ -144,16 +138,6 @@ watch(
 }
 
 /* 로딩 및 에러 메시지 스타일 추가 */
-.loading,
-.error {
-  text-align: center;
-  padding: var(--spacing-xl);
-  color: var(--color-text-dark);
-}
-
 @media (max-width: 768px) {
-  .post-title {
-    font-size: 2.2rem;
-  }
 }
 </style>

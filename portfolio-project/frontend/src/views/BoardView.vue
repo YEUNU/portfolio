@@ -1,31 +1,11 @@
 <template>
-  <div class="max-w-7xl mx-auto">
-    <!-- Page Title -->
-    <div class="mb-12">
-      <h1 class="text-4xl md:text-5xl font-bold text-primary dark:text-primary-dark mb-2 animate-fade-in">
-        {{ pageTitle }}
-      </h1>
-      <div class="h-1 w-20 bg-primary dark:bg-primary-dark rounded-md3-full"></div>
-    </div>
-
-    <!-- Loading Spinner -->
-    <div v-if="loading" class="flex justify-center items-center min-h-[400px]">
-      <div class="relative">
-        <div class="w-16 h-16 border-4 border-surface-variant dark:border-surface-dark-variant border-t-primary rounded-full animate-spin"></div>
-        <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-b-primary-300 dark:border-b-primary-700 rounded-full animate-spin" style="animation-direction: reverse; animation-duration: 1s;"></div>
-      </div>
-    </div>
-    
-    <!-- Error Message -->
-    <div v-else-if="error" class="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-      <svg class="w-20 h-20 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <p class="text-xl text-surface-on-variant dark:text-surface-dark-on">{{ error }}</p>
-    </div>
-
+  <PageContainer 
+    :title="pageTitle" 
+    :loading="loading" 
+    :error="error"
+  >
     <!-- Posts Grid -->
-    <div v-else-if="posts.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in">
+    <div v-if="posts.length > 0" class="grid gap-6 animate-fade-in" :style="{ gridTemplateColumns: `repeat(auto-fill, minmax(${cardMinWidth}px, 1fr))` }">
       <PostCard
         v-for="post in posts"
         :key="post.id"
@@ -118,7 +98,7 @@
       </div>
     </div>
 
-  </div>
+  </PageContainer>
 </template>
 
 <script setup>
@@ -128,6 +108,7 @@ import api from '@/services/api';
 import { useAuthStore } from '@/store/auth';
 import { useMeta } from '@/composables/useMeta';
 import PostCard from '@/components/post/PostCard.vue';
+import PageContainer from '@/components/common/PageContainer.vue';
 
 const posts = ref([]);
 const loading = ref(true);
@@ -146,6 +127,9 @@ const postToDelete = ref({ id: null, title: '' });
 const showErrorModal = ref(false);
 const errorMessage = ref('');
 // ----------------------------
+
+// Responsive grid settings
+const cardMinWidth = ref(300); // 기본 최소 너비 (픽셀)
 
 const pageTitle = computed(() => {
   return route.query.tag ? `# ${route.query.tag}` : 'All Posts';
@@ -206,7 +190,21 @@ const fetchPosts = async () => {
 };
 
 const updatePageMeta = () => {
-  // This function is intentionally left empty.
+  const origin = window.location?.origin || '';
+  const tag = route.query.tag;
+  const isTag = !!tag;
+  const metaTitle = isTag ? `#${tag} - 성연우 포트폴리오` : 'All Posts - 성연우 포트폴리오';
+  const metaDescription = isTag
+    ? `태그 #${tag} 로 필터된 게시글 목록입니다.`
+    : '성연우의 최신 게시글 목록을 확인하세요.';
+
+  updateMeta({
+    title: metaTitle,
+    description: metaDescription,
+    keywords: isTag ? `성연우, 포트폴리오, ${tag}` : '성연우, 포트폴리오, 게시글, 개발',
+    canonical: `${origin}${route.fullPath}`,
+    ogImage: '/og-image.jpg',
+  });
 };
 
 watch(() => route.query.tag, () => {

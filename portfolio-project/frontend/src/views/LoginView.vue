@@ -1,30 +1,32 @@
 <template>
-  <div class="login-view">
-    <div class="login-form-container">
-      <h1 class="form-title">Admin Login</h1>
-      <p class="form-subtitle">관리자 계정으로 로그인해주세요.</p>
-      <form @submit.prevent="handleLogin" class="login-form">
-        <BaseFormField
-          v-model="username"
-          label="Username"
-          type="text"
-          placeholder="아이디를 입력하세요"
-          required
-        />
-        <BaseFormField
-          v-model="password"
-          label="Password"
-          type="password"
-          placeholder="비밀번호를 입력하세요"
-          required
-        />
-        <p v-if="error" class="error-message">{{ error }}</p>
-        <BaseButton type="submit" :disabled="loading" class="login-button">
-          {{ loading ? '로그인 중...' : '로그인' }}
-        </BaseButton>
-      </form>
+  <PageContainer :title="''" hide-header>
+    <div class="login-view">
+      <div class="login-form-container">
+        <h1 class="form-title">Admin Login</h1>
+        <p class="form-subtitle">관리자 계정으로 로그인해주세요.</p>
+        <form @submit.prevent="handleLogin" class="login-form">
+          <BaseFormField
+            v-model="username"
+            label="Username"
+            type="text"
+            placeholder="아이디를 입력하세요"
+            required
+          />
+          <BaseFormField
+            v-model="password"
+            label="Password"
+            type="password"
+            placeholder="비밀번호를 입력하세요"
+            required
+          />
+          <p v-if="error" class="error-message">{{ error }}</p>
+          <BaseButton type="submit" :disabled="loading" class="login-button">
+            {{ loading ? '로그인 중...' : '로그인' }}
+          </BaseButton>
+        </form>
+      </div>
     </div>
-  </div>
+  </PageContainer>
 </template>
 
 <script setup>
@@ -33,6 +35,7 @@ import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/store/auth';
 import BaseButton from '@/components/common/BaseButton.vue';
 import BaseFormField from '@/components/common/BaseFormField.vue';
+import PageContainer from '@/components/common/PageContainer.vue';
 
 const username = ref('');
 const password = ref('');
