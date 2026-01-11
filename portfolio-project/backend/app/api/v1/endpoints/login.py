@@ -31,11 +31,7 @@ def login_access_token(
             detail="Incorrect username or password"
         )
     
-    # 관리자의 경우 더 짧은 만료 시간 적용
-    if user.is_admin:
-        access_token_expires = timedelta(minutes=settings.ADMIN_SESSION_TIMEOUT_MINUTES)
-    else:
-        access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     
     access_token = security.create_access_token(
         user.id, expires_delta=access_token_expires
