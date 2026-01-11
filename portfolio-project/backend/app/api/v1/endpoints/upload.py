@@ -48,6 +48,13 @@ async def upload_image(  # 비동기 처리를 위해 async 추가
 
         # PIL을 사용하여 메모리 상의 이미지 열기
         img = Image.open(io.BytesIO(contents))
+
+        # 리사이즈 로직 추가 (가로 최대 1024px, 비율 유지)
+        MAX_WIDTH = 1024
+        if img.width > MAX_WIDTH:
+            aspect_ratio = img.height / float(img.width)
+            target_height = int(MAX_WIDTH * aspect_ratio)
+            img = img.resize((MAX_WIDTH, target_height), Image.Resampling.LANCZOS)
         
         # WebP 포맷으로 저장 (품질 90)
         img.save(file_path, "WEBP", quality=90)

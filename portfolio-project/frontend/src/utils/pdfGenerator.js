@@ -1,10 +1,10 @@
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import api from '@/services/api';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-import api from '@/services/api';
 
-// DOMPurify 설정: PDF 생성에 필요한 안전한 HTML 태그만 허용
+// -----------------------------------------------------------
+// 1. DOMPurify & Markdown 설정 (기존 유지)
+// -----------------------------------------------------------
 const DOMPURIFY_CONFIG = {
   ALLOWED_TAGS: [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -18,350 +18,227 @@ const DOMPURIFY_CONFIG = {
   ],
   ALLOWED_ATTR: [
     'href', 'src', 'alt', 'title', 'class', 'id',
-    'width', 'height',
+    'width', 'height', 'style'
   ],
-  FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
+  FORBID_TAGS: [
+    'script', 'style', 'iframe', 'object', 'embed', 'form', 
+    'nav', 'header', 'footer', 'button', 'input', 'textarea', 'select'
+  ],
   FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
 };
 
-/**
- * 콘텐츠가 Markdown인지 HTML인지 감지
- */
 function isMarkdown(content) {
   if (!content) return false;
-  
-  // HTML 태그가 있으면 HTML로 판단
   const htmlTagPattern = /<\/?[a-z][\s\S]*>/i;
-  
-  // Markdown 특유의 패턴들
   const markdownPatterns = [
-    /^#{1,6}\s/m,           // 헤딩: # ## ###
-    /\*\*[^*]+\*\*/,        // 볼드: **text**
-    /\*[^*]+\*/,            // 이탤릭: *text*
-    /!\[.*?\]\(.*?\)/,      // 이미지: ![alt](url)
-    /\[.*?\]\(.*?\)/,       // 링크: [text](url)
-    // eslint-disable-next-line no-useless-escape
-    /^[\*\-\+]\s/m,         // 리스트: * - +
-    /^\d+\.\s/m,            // 번호 리스트: 1. 2.
-    /^>\s/m,                // 인용: >
-    /```[\s\S]*?```/,       // 코드 블록: ```
-    /`[^`]+`/               // 인라인 코드: `code`
+    /^#{1,6}\s/m, /\*\*[^*]+\*\*/, /\*[^*]+\*/, /!\[.*?\]\(.*?\)/,
+    /\[.*?\]\(.*?\)/, /^[-*+]\s/m, /^\d+\.\s/m, /^\u003e\s/m,
+    /```[\s\S]*?```/, /`[^`]+`/
   ];
-  
-  const hasHtmlTags = htmlTagPattern.test(content);
-  const hasMarkdownPatterns = markdownPatterns.some(pattern => pattern.test(content));
-  
-  // HTML 태그가 없고 Markdown 패턴이 있으면 Markdown
-  return !hasHtmlTags && hasMarkdownPatterns;
+  return !htmlTagPattern.test(content) && markdownPatterns.some(p => p.test(content));
 }
 
-/**
- * Markdown을 HTML로 변환 (DOMPurify로 XSS 방지)
- */
 function markdownToHtml(markdown) {
-  // marked 설정
-  marked.setOptions({
-    breaks: true,        // 줄바꿈을 <br>로 변환
-    gfm: true,          // GitHub Flavored Markdown
-    headerIds: false,   // 헤더에 ID 추가 안함
-    mangle: false       // 이메일 주소 난독화 안함
-  });
-  
-  const rawHtml = marked(markdown);
-  // DOMPurify로 sanitize하여 XSS 방지
-  return DOMPurify.sanitize(rawHtml, DOMPURIFY_CONFIG);
+  marked.setOptions({ breaks: true, gfm: true, headerIds: false, mangle: false });
+  return DOMPurify.sanitize(marked(markdown), DOMPURIFY_CONFIG);
 }
 
-/**
- * 콘텐츠를 HTML로 정규화 (Markdown이면 변환, HTML이면 sanitize)
- */
 function normalizeContent(content) {
   if (!content) return '<p>내용 없음</p>';
-  
-  if (isMarkdown(content)) {
-    return markdownToHtml(content);
-  }
-  
-  // HTML 콘텐츠도 sanitize
-  return DOMPurify.sanitize(content, DOMPURIFY_CONFIG);
+  return isMarkdown(content) ? markdownToHtml(content) : DOMPurify.sanitize(content, DOMPURIFY_CONFIG);
 }
 
-/**
- * HTML 콘텐츠를 Canvas로 렌더링하여 이미지로 변환
- */
-async function htmlToImage(htmlContent, width = 800) {
-  const tempContainer = document.createElement('div');
-  tempContainer.style.position = 'absolute';
-  tempContainer.style.left = '-9999px';
-  tempContainer.style.top = '0';
-  tempContainer.style.width = `${width}px`;
-  tempContainer.style.padding = '40px';
-  tempContainer.style.backgroundColor = 'white';
-  tempContainer.style.fontFamily = "'Noto Sans KR', 'Malgun Gothic', Arial, sans-serif";
-  tempContainer.style.fontSize = '16px';
-  tempContainer.style.lineHeight = '1.8';
-  tempContainer.style.color = '#000';
-  tempContainer.style.wordBreak = 'break-word';
-  
-  // 이미지 스타일 추가
-  tempContainer.innerHTML = `
-    <style>
-      img { max-width: 100%; height: auto; margin: 10px 0; }
-      h1, h2, h3, h4, h5, h6 { margin: 20px 0 10px 0; font-weight: bold; }
-      h1 { font-size: 28px; }
-      h2 { font-size: 24px; }
-      h3 { font-size: 20px; }
-      p { margin: 10px 0; }
-      pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
-      code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }
-      table { border-collapse: collapse; width: 100%; margin: 15px 0; }
-      th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-      th { background-color: #f5f5f5; font-weight: bold; }
-      ul, ol { margin: 10px 0; padding-left: 30px; }
-      li { margin: 5px 0; }
-    </style>
-    ${htmlContent}
-  `;
-  
-  document.body.appendChild(tempContainer);
-
-  try {
-    const canvas = await html2canvas(tempContainer, {
-      scale: 2,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      imageTimeout: 15000
-    });
-
-    const imgData = canvas.toDataURL('image/png');
-    return {
-      data: imgData,
-      width: canvas.width,
-      height: canvas.height
-    };
-  } finally {
-    document.body.removeChild(tempContainer);
-  }
-}
+// -----------------------------------------------------------
+// 2. 인쇄용 HTML 생성 및 window.print() 실행
+// -----------------------------------------------------------
 
 /**
- * 이미지를 PDF에 추가하고 여러 페이지로 분할
- * 컨텐츠가 잘리거나 중복되지 않도록 정확하게 분할
- */
-async function addImageToPDF(pdf, imgData, imgWidth, imgHeight, startY = 10) {
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
-  const maxWidth = pageWidth - (margin * 2);
-  const bottomMargin = 15; // 하단 여백 (페이지 번호 공간)
-  
-  // 이미지 크기를 페이지 너비에 맞게 조정
-  const ratio = maxWidth / imgWidth;
-  const scaledWidth = maxWidth;
-  const scaledHeight = imgHeight * ratio;
-  
-  // 첫 페이지에서 사용 가능한 높이
-  const firstPageAvailableHeight = pageHeight - startY - bottomMargin;
-  
-  if (scaledHeight <= firstPageAvailableHeight) {
-    // 한 페이지에 다 들어가는 경우
-    pdf.addImage(imgData, 'PNG', margin, startY, scaledWidth, scaledHeight);
-    return 1;
-  }
-  
-  // 이미지 로드 (비동기)
-  const img = new Image();
-  await new Promise((resolve, reject) => {
-    img.onload = resolve;
-    img.onerror = reject;
-    img.src = imgData;
-  });
-  
-  // 여러 페이지에 걸쳐 있는 경우
-  let remainingHeight = scaledHeight;
-  let sourceY = 0; // 원본 이미지에서 자를 Y 위치 (스케일된 좌표)
-  let pageCount = 0;
-  let isFirstPage = true;
-  
-  while (remainingHeight > 0) {
-    if (!isFirstPage) {
-      pdf.addPage();
-    }
-    pageCount++;
-    
-    const availableHeight = isFirstPage 
-      ? firstPageAvailableHeight 
-      : pageHeight - margin - bottomMargin;
-    
-    const heightToDraw = Math.min(availableHeight, remainingHeight);
-    const yPosition = isFirstPage ? startY : margin;
-    
-    // Canvas를 사용하여 이미지의 특정 부분만 잘라내기
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    
-    // 원본 이미지 비율로 canvas 크기 설정
-    const sourceHeight = heightToDraw / ratio;
-    const sourceYInOriginal = sourceY / ratio;
-    
-    canvas.width = imgWidth;
-    canvas.height = sourceHeight;
-    
-    // 이미지의 일부분을 canvas에 그리기
-    ctx.drawImage(
-      img,
-      0, sourceYInOriginal,        // 소스 x, y (원본 이미지 좌표)
-      imgWidth, sourceHeight,      // 소스 width, height
-      0, 0,                        // 대상 x, y (canvas 좌표)
-      imgWidth, sourceHeight       // 대상 width, height
-    );
-    
-    const slicedImgData = canvas.toDataURL('image/png');
-    pdf.addImage(slicedImgData, 'PNG', margin, yPosition, scaledWidth, heightToDraw);
-    
-    sourceY += heightToDraw;
-    remainingHeight -= heightToDraw;
-    isFirstPage = false;
-  }
-
-  return pageCount;
-}
-
-/**
- * About 페이지와 모든 게시글을 PDF로 생성
+ * 포트폴리오 데이터를 인쇄 가능한 HTML 문서로 변환하여 새 창에 띄우고 인쇄 대화상자를 호출합니다.
+ * 이 방식은 텍스트가 Selectable하며, 벡터 품질을 유지하고, 용량이 매우 작습니다.
  */
 export async function generatePortfolioPDF() {
   try {
-    // 1. About 페이지 데이터 가져오기
-    const aboutResponse = await api.get('/api/v1/board/slug/about');
-    const aboutData = aboutResponse.data;
+    // 1. 데이터 가져오기
+    const [aboutRes, postsRes] = await Promise.all([
+      api.get('/api/v1/board/slug/about').catch(() => ({ data: {} })),
+      api.get('/api/v1/board/')
+    ]);
 
-    // 2. 모든 게시글 가져오기
-    const postsResponse = await api.get('/api/v1/board/');
-    const posts = postsResponse.data.sort((a, b) => 
-      new Date(b.created_at) - new Date(a.created_at)
-    );
+    const aboutData = aboutRes.data;
+    const posts = postsRes.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    // PDF 문서 생성
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      compress: true
-    });
+    // 2. HTML 문자열 조립 (인쇄용 스태틱 HTML, 스크립트 없음)
+    const style = `
+      <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap');
+        @page { size: A4; margin: 15mm; }
+        body { font-family: 'Noto Sans KR', sans-serif; line-height: 1.6; color: #333; background: #fff; margin: 0; padding: 0; }
+        a { text-decoration: none; color: inherit; }
+        .page-break { page-break-after: always; break-after: page; }
+        .no-break { page-break-inside: avoid; break-inside: avoid; }
+        .cover-page { height: 90vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; }
+        .cover-title{ font-size:48px; font-weight:bold; margin-bottom:20px; }
+        .cover-subtitle{ font-size:24px; color:#555; margin-bottom:10px; }
+        .cover-date{ font-size:18px; color:#888; }
+        .section-title{ font-size:32px; font-weight:bold; border-bottom:2px solid #333; padding-bottom:10px; margin-bottom:30px; margin-top:0; }
+        .post-container{ margin-bottom:50px; }
+        .post-header{ margin-bottom:20px; padding-bottom:10px; border-bottom:1px solid #eee; }
+        .post-title{ font-size:24px; font-weight:bold; margin:0 0 10px 0; }
+        .post-meta{ font-size:14px; color:#666; display:block; }
+        .post-meta span:first-child { display:block; margin-bottom:5px; }
+        .post-tag{ color:#2563eb; display:block; margin-top:5px; }
+        .markdown-body{ font-size:14px; }
+        .markdown-body h1, .markdown-body h2, .markdown-body h3{ margin-top:20px; margin-bottom:10px; font-weight:bold; page-break-after:avoid; }
+        .markdown-body p{ margin-bottom:10px; text-align:justify; }
+        .markdown-body img{ max-width:100%; height:auto; display:block; margin:15px auto; border-radius:4px; page-break-inside:avoid; }
+        .markdown-body pre{ background:#f8f9fa; padding:15px; border-radius:5px; overflow-x:auto; font-family:monospace; font-size:12px; page-break-inside:avoid; border:1px solid #e9ecef; white-space:pre-wrap; }
+        .markdown-body blockquote{ border-left:4px solid #dfe2e5; padding-left:15px; color:#6a737d; margin:15px 0; page-break-inside:avoid; }
+        @media print { body { -webkit-print-color-adjust: exact; } }
+      </style>
+    `;
 
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = pdf.internal.pageSize.getHeight();
+    const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 
-    // 표지 추가
-    pdf.setFontSize(32);
-    pdf.setFont(undefined, 'bold');
-    pdf.text('Portfolio', pageWidth / 2, 80, { align: 'center' });
-    
-    pdf.setFontSize(16);
-    pdf.setFont(undefined, 'normal');
-    const today = new Date().toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-    pdf.text(today, pageWidth / 2, 100, { align: 'center' });
+    const coverHtml = `
+      <div class="cover-page page-break">
+        <div class="cover-title">PORTFOLIO</div>
+        <div class="cover-subtitle">Sung Yeun Woo</div>
+      </div>
+    `;
 
-    // About 섹션 추가
-    if (aboutData.content) {
-      pdf.addPage();
-      
-      // 섹션 제목
-      pdf.setFontSize(24);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('About', 15, 20);
-      
-      // 콘텐츠를 HTML로 정규화 (Markdown이면 변환)
-      const normalizedContent = normalizeContent(aboutData.content);
-      
-      // HTML 콘텐츠를 이미지로 변환하여 추가
-      const aboutHtml = `
-        <h2 style="margin-top: 0;">${aboutData.title || ''}</h2>
-        ${normalizedContent}
+    let aboutHtml = '';
+    if (aboutData && aboutData.content) {
+      aboutHtml = `
+        <div class="page-break">
+          <h1 class="section-title">${aboutData.title || 'About Me'}</h1>
+          <div class="markdown-body">${normalizeContent(aboutData.content)}</div>
+        </div>
       `;
-      
-      const aboutImage = await htmlToImage(aboutHtml, 750);
-      await addImageToPDF(pdf, aboutImage.data, aboutImage.width, aboutImage.height, 35);
     }
 
-    // 게시글 섹션 추가
+    let postsHtml = '';
     if (posts.length > 0) {
-      pdf.addPage();
-      
-      // 섹션 제목
-      pdf.setFontSize(24);
-      pdf.setFont(undefined, 'bold');
-      pdf.text('All Posts', 15, 20);
-      
-      let isFirstPost = true;
-      
-      for (let i = 0; i < posts.length; i++) {
-        const post = posts[i];
-        
-        if (!isFirstPost) {
-          pdf.addPage();
-        }
-        isFirstPost = false;
-        
-        // 게시글 제목과 메타데이터
-        const createdDate = new Date(post.created_at).toLocaleDateString('ko-KR', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        });
-        
-        const tags = Array.isArray(post.tags) 
-          ? post.tags.join(', ') 
-          : post.tags || '';
-        
-        const postHeader = `
-          <div style="margin-bottom: 30px;">
-            <h2 style="margin: 0 0 10px 0; color: #1a1a1a;">${i + 1}. ${post.title}</h2>
-            <p style="margin: 5px 0; color: #666; font-size: 14px;">작성일: ${createdDate}</p>
-            ${tags ? `<p style="margin: 5px 0; color: #3b82f6; font-size: 14px;">태그: ${tags}</p>` : ''}
+      postsHtml += `<h1 class="section-title">Projects</h1>`;
+
+      posts.forEach((post, index) => {
+        const dateStr = new Date(post.created_at).toLocaleDateString('en-US');
+        const tags = post.tags ? `<span class="post-tag">${post.tags.replaceAll(',', ' · ')}</span>` : '';
+        postsHtml += `
+          <div class="post-container page-break">
+            <div class="post-header">
+              <h2 class="post-title">${index + 1}. ${post.title}</h2>
+              <div class="post-meta">
+                ${tags}
+              </div>
+            </div>
+            <div class="markdown-body">${normalizeContent(post.content)}</div>
           </div>
         `;
-        
-        // 콘텐츠를 HTML로 정규화 (Markdown이면 변환)
-        const normalizedPostContent = normalizeContent(post.content);
-        
-        // 게시글 HTML 콘텐츠를 이미지로 변환하여 추가
-        const postHtml = postHeader + normalizedPostContent;
-        const postImage = await htmlToImage(postHtml, 750);
-        await addImageToPDF(pdf, postImage.data, postImage.width, postImage.height, 35);
+      });
+    }
+
+    const fullHtml = `
+      <!DOCTYPE html>
+      <html lang="ko">
+      <head><meta charset="UTF-8"><title></title>${style}</head>
+      <body>${coverHtml}${aboutHtml}${postsHtml}</body>
+      </html>
+    `;
+
+    // 3. 이미지들을 Data URL로 인라인화하여 Playwright가 외부 리소스 없이 렌더링할 수 있게 함
+    const INLINE_MAX_BYTES = 300 * 1024; // 300 KB per image limit
+    const inlineImagesInHtml = async (html) => {
+      const failed = [];
+      const skipped = []; // images skipped because they are too large to inline in browser
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const imgs = Array.from(doc.querySelectorAll('img'));
+
+        await Promise.all(imgs.map(async (img) => {
+          try {
+            let src = img.getAttribute('src') || '';
+            if (!src) return;
+
+            let fullUrl = src;
+            if (src.startsWith('//')) fullUrl = window.location.protocol + src;
+            else if (src.startsWith('/')) fullUrl = window.location.origin + src;
+            else if (!/^https?:\/\//i.test(src)) fullUrl = window.location.origin + '/' + src;
+
+            // Check content-length first to avoid downloading very large images
+            let headResp;
+            try {
+              headResp = await fetch(fullUrl, { method: 'HEAD', credentials: 'include' });
+            } catch (e) {
+              headResp = null;
+            }
+
+            const contentLen = headResp?.headers?.get('content-length');
+            if (contentLen && parseInt(contentLen, 10) > INLINE_MAX_BYTES) {
+              skipped.push(fullUrl);
+              return;
+            }
+
+            const resp = await fetch(fullUrl, { credentials: 'include' });
+            if (!resp.ok) { failed.push(fullUrl); return; }
+            const blob = await resp.blob();
+
+            if (blob.size > INLINE_MAX_BYTES) {
+              // too big to include from browser side; ask server to inline instead
+              skipped.push(fullUrl);
+              return;
+            }
+
+            const arrayBuf = await blob.arrayBuffer();
+            // convert to base64
+            let binary = '';
+            const bytes = new Uint8Array(arrayBuf);
+            const chunkSize = 0x8000;
+            for (let i = 0; i < bytes.length; i += chunkSize) {
+              binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunkSize));
+            }
+            const base64 = btoa(binary);
+            const dataUrl = `${blob.type ? 'data:' + blob.type + ';base64,' : 'data:image/png;base64,'}${base64}`;
+            img.setAttribute('src', dataUrl);
+          } catch (e) {
+            // 실패해도 전체 흐름 중단하지 않음
+            console.warn('Failed to inline image', e);
+            try { failed.push(img.getAttribute('src') || ''); } catch (_e) { console.warn('Could not record failed image src'); }
+          }
+        }));
+
+        return { html: doc.documentElement.outerHTML, failed, skipped };
+      } catch (e) {
+        console.warn('inlineImagesInHtml error', e);
+        return { html, failed, skipped };
       }
     }
 
-    // 페이지 번호 추가
-    const totalPages = pdf.internal.getNumberOfPages();
-    for (let i = 1; i <= totalPages; i++) {
-      pdf.setPage(i);
-      pdf.setFontSize(10);
-      pdf.setTextColor(150);
-      pdf.text(
-        `${i} / ${totalPages}`,
-        pageWidth / 2,
-        pageHeight - 10,
-        { align: 'center' }
-      );
-    }
+    const { html: inlinedHtml, failed: failedImages, skipped: skippedImages } = await inlineImagesInHtml(fullHtml);
 
-    // PDF 저장
+    // 4. 서버에 HTML을 보내 PDF로 변환하여 다운로드 받기
+    const response = await api.post('/api/v1/pdf/generate', { html: inlinedHtml, failed_images: failedImages, skipped_images: skippedImages }, { responseType: 'blob' });
+
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
     const fileName = `portfolio_${new Date().toISOString().split('T')[0]}.pdf`;
-    pdf.save(fileName);
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
 
-    return { success: true, fileName };
+    return { success: true };
+
   } catch (error) {
-    console.error('PDF 생성 실패:', error);
-    throw new Error('PDF 생성에 실패했습니다.');
+    console.error('PDF generation failed:', error);
+    throw new Error('서버에서 PDF를 생성하지 못했습니다.');
   }
 }
+
+// 기존 htmlToImage 등 불필요한 함수 제거됨
+
 
 

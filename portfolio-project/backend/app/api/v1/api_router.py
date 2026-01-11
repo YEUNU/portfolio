@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from app.api.v1.endpoints import login, board, upload, sitemap
+from app.api.v1.endpoints import login, board, upload, sitemap, pdf
 
 api_router = APIRouter()
 
@@ -12,6 +12,9 @@ api_router.include_router(board.router, prefix="/board", tags=["board"])
 
 # 파일 업로드 라우터
 api_router.include_router(upload.router, prefix="/upload", tags=["upload"])
+
+# PDF generation (Playwright)
+api_router.include_router(pdf.router, prefix="/pdf", tags=["pdf"])
 
 # SEO sitemap 라우터
 api_router.include_router(sitemap.router, tags=["seo"])

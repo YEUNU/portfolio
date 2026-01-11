@@ -17,7 +17,7 @@ except NameError:
 
 # UPLOAD_DIRECTORY = "backend/app/static/images"
 # 리사이즈할 기준 가로 크기
-TARGET_WIDTH = 512
+TARGET_WIDTH = 1024
 
 # 처리할 이미지 확장자
 SUPPORTED_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'}
